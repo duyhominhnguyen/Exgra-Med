@@ -13,9 +13,16 @@ State-of-the-art medical multi-modal LLMs (med-MLLMs), such as LLAVA-MED and BIO
 
 To address this, we introduce **EXGRA-MED**, a novel multi-graph alignment framework that jointly aligns images, instruction responses, and extended captions in the latent space, advancing semantic grounding and cross-modal coherence.   To scale to large LLMs (e.g., LLaMa-7B), we develop an efficient end-to-end training scheme using black-box gradient estimation, enabling fast and scalable optimization.  
 
-🏆 **Key Results:**
-- Matches LLAVA-MED’s performance on the Medical Visual Question Answering (VQA) task with **only 10% of pre-training data** 
-- When pre-trained with **100% data** (PMC-15M), ExGra-Med (LLaMA-7B) **surpasses several SOTA Medical Multi-modal LLMs on diverse settings: (i) Medical VQA, (ii) Medical Visual Chatbot, and (iii) Zero-shot Image Classification as a VQA task**.
+## 🏆 **Key Results**
+
+:white_check_mark: **Reveals the data inefficiency of autoregressive modeling** — LLaVA-Med exhibits a significant performance drop when pre-trained on limited data, even after full fine-tuning on downstream tasks.
+
+:white_check_mark: **Matches LLaVA-Med’s performance on Medical VQA** using only **10% of the pre-training data**, demonstrating the data efficiency of EXGRA-MED.
+
+:white_check_mark: **Surpasses several SOTA medical multi-modal LLMs** when pre-trained on the full PMC-15M dataset (100%) with LLaMA-7B, across diverse tasks:
+- (i) Medical Visual Question Answering (VQA)  
+- (ii) Medical Visual Chatbot  
+- (iii) Zero-shot Image Classification (as a VQA task)
 
 ---
 
@@ -31,7 +38,10 @@ To address this, we introduce **EXGRA-MED**, a novel multi-graph alignment frame
 
 | Model                                  | Description                                | Download Link |
 |----------------------------------------|--------------------------------------------|---------------|
-| `exgra-med`                            | Base EXGRA-MED model trained on 10% data   | [Link](#)     |
+| `llava-med`                            | LLaVa-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
+| `exgra-med`                            | ExGra-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
+| `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](#)     |
+| `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](#)     |
 | `exgra-med-dci`                        | EXGRA-MED + DCI-enhanced version           | [Link](#)     |
 | `exgra-med-dci-vqa-rad`               | Fine-tuned on VQA-RAD                      | [Link](#)     |
 | `exgra-med-dci-slake`                 | Fine-tuned on SLAKE                        | [Link](#)     |
@@ -47,4 +57,21 @@ cd exgra-med
 conda create -n exgra-med python=3.10
 conda activate exgra-med
 pip install -r requirements.txt
+```
+
+-----
+## Project Structure
+```
+exgra-med/
+├── configs/                   # Training and model configs
+├── data/                      # Preprocessing scripts and data utils
+├── models/                    # Core EXGRA-MED & DCI architecture
+├── scripts/                   # Shell scripts for training and evaluation
+├── utils/                     # Miscellaneous helpers
+└── README.md
+
+```
+
+
+-----
 
