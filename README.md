@@ -11,7 +11,7 @@
 
 State-of-the-art medical multi-modal LLMs (med-MLLMs), such as LLAVA-MED and BIOMEDGPT, primarily depend on scaling model size and data volume, with training driven largely by autoregressive objectives.   However, we reveal that this approach can lead to weak vision-language alignment, making these models overly dependent on costly instruction-following data.  
 
-To address this, we introduce **EXGRA-MED**, a novel multi-graph alignment framework that jointly aligns images, instruction responses, and extended captions in the latent space, advancing semantic grounding and cross-modal coherence.   To scale to large LLMs (e.g., LLaMa-7B), we develop an efficient end-to-end training scheme using black-box gradient estimation, enabling fast and scalable optimization.  
+To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framework that jointly aligns images, instruction responses, and extended captions** in the latent space, advancing semantic grounding and cross-modal coherence.   To scale to large LLMs (e.g., LLaMa-7B), we develop an efficient end-to-end training scheme using black-box gradient estimation, enabling fast and scalable optimization.  
 
 <p align="center">
 <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/exgramed_v1.jpg" alt="Alt text" width="1400"/>
@@ -31,7 +31,7 @@ To address this, we introduce **EXGRA-MED**, a novel multi-graph alignment frame
 
 
 <p align="center">
-<img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/exgra_med_result.png" alt="Alt text" width="700"/>
+<img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/exgra_med_result.png" alt="Alt text" width="600"/>
 </p>
 
 
