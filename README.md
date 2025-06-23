@@ -38,7 +38,10 @@ To address this, we introduce **EXGRA-MED**, a novel multi-graph alignment frame
 
 | Model                                  | Description                                | Download Link |
 |----------------------------------------|--------------------------------------------|---------------|
-| `llava-med`                            | LLaVa-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
+| `llava-med-10`                            | LLaVa-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
+| `llava-med-40`                            | LLaVa-Med (40% pre-trained PMC-15M)                   | [Link](#)     |
+| `exgra-med-10`                            | ExGra-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
+| `exgra-med-40`                            | ExGra-Med (40% pre-trained PMC-15M)                   | [Link](#)     |
 | `exgra-med`                            | ExGra-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
 | `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](#)     |
 | `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](#)     |
@@ -99,5 +102,35 @@ You can run evaluation for each of the three key tasks:
 ```
 bash scripts/eval_vqa.sh  # supports VQA-RAD, SLAKE, PATH-VQA
 ```
+
+## 2. Medical Visual Chatbot
+```
+bash scripts/eval_chatbot.sh
+```
+
+## 3. Zero-shot Image Classification
+By reformulating image classification as visual question answering, we can generate predictions by solving the VQA task with multiple-choice questions.
+```
+bash scripts/eval_zero_shot.sh
+```
+
+------
+## 🔬 Data Efficiency Demonstration (10% vs 40%)
+
+To replicate our findings on LLAVA-MED’s data inefficiency and the strength of EXGRA-MED with 10% and 40% data (Tables 1 & 2 in the paper):
+
+# Fine-tune EXGRA-MED with 10%/40% data on VQA task 
+```
+bash scripts/train_10percent.sh
+```
+
+# Fine-tune checkpoint LLaVa-Med with 10%/40% data on VQA task
+```
+bash scripts/train_llava_full.sh
+```
+
+
+
+
 
 
