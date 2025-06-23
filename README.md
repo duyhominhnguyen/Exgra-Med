@@ -25,7 +25,22 @@ To address this, we introduce **EXGRA-MED**, a novel multi-graph alignment frame
 - (iii) Zero-shot Image Classification (as a VQA task)
 
 ---
+## 📚 Table of Contents
 
+- [🚨 News](#-news)
+- [📦 Model Checkpoints](#-model-checkpoints)
+- [🛠️ Installation](#️-installation)
+- [📂 Project Structure](#project-structure)
+- [📄 Dataset Configuration Files](#-dataset-configuration-files)
+- [🔧 Fine-tuning on VQA Tasks](#-fine-tuning-on-vqa-tasks)
+- [📈 Evaluation](#-evaluation)
+  - [1. Medical VQA Evaluation](#1-medical-vqa-evaluation)
+  - [2. Medical Visual Chatbot](#2-medical-visual-chatbot)
+  - [3. Zero-shot Image Classification](#3-zero-shot-image-classification)
+- [🔬 Data Efficiency Demonstration (10% vs 40%)](#-data-efficiency-demonstration-10-vs-40)
+- [📖 Citation](#citation)
+
+---
 ## 🚨 News
 
 - **[Jun 2025]** 🔓 Initial codebase release (preprocessing + VQA fine-tuning).
