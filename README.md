@@ -129,8 +129,17 @@ bash scripts/train_10percent.sh
 bash scripts/train_llava_full.sh
 ```
 
+## Citation
+If you find this work useful, please cite our paper:
 
-
+```
+@article{nguyen2025exgra,
+  title={EXGRA-MED: Extended Context Graph Alignment for Medical Vision- Language Models},
+  author={Duy M. H. Nguyen, Nghiem T. Diep, Trung Q. Nguyen, Hoang-Bao Le, Tai Nguyen, Tien Nguyen, TrungTin Nguyen, Nhat Ho, Pengtao Xie, Roger Wattenhofer, James Zou, Daniel Sonntag, Mathias Niepert},
+  journal={arXiv preprint arXiv:2410.02615},
+  year={2025}
+}
+```
 
 
 
