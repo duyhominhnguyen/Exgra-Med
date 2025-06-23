@@ -74,7 +74,22 @@ exgra-med/
 └── README.md
 
 ```
+--------
+## 📄 Dataset Configuration Files
+We provide pre-built `.json` configuration files for all datasets used in VQA training and evaluation. These files specify paths, splits, and preprocessing parameters necessary for seamless execution.
 
+| Dataset      | Task       | Config File Description       | Download Link              |
+| ------------ | ---------- | ----------------------------- | -------------------------- |
+| VQA-RAD      | VQA        | Train/val splits, QA pairs    | [vqa\_rad\_config.json](#) |
+| SLAKE        | VQA        | Train/val splits, QA pairs    | [slake\_config.json](#)    |
+| PATH-VQA     | VQA        | Train/val splits, QA pairs    | [pathvqa\_config.json](#)  |
+
+
+ 🔗 **Instructions**:
+
+- Place the downloaded `.json` files under the `configs/datasets/` directory.
+
+- Update file paths inside if needed to match your local dataset locations.
 
 -----
 ## 🔧 Fine-tuning on VQA Tasks
