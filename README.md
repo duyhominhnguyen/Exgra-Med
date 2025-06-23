@@ -5,17 +5,22 @@
 [![License](https://img.shields.io/github/license/your-username/exgra-med)](./LICENSE)
 [![Website](https://img.shields.io/badge/Demo-Live-green)](https://your-demo-site.com) <!-- Optional -->
 
+<!--
 ## Collaborating Institutions
 
 This project is a joint research effort between the following institutions:
 
 <p align="left">
-  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/Stanford_logo.png" height="60" alt="Stanford University" title="Stanford University"/>
-  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/eth-zurich_logo.jpg" height="100" alt="ETH Zurich" title="ETH Zurich"/>
-  <img src="figures/logos/hpi_logo.png" height="40" alt="Hasso Plattner Institute" title="Hasso Plattner Institute"/>
-  <img src="figures/logos/vinuni_logo.png" height="40" alt="VinUni" title="VinUni"/>
+  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/Stanford_logo.png" height="80" alt="Stanford University" title="Stanford University"/>
+  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/eth-zurich_logo.jpg" height="120" alt="ETH Zurich" title="ETH Zurich"/>
+  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/UCSD_logo.png" height="80" alt="UCSD" title="UCSD"/>
+  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/Universita%CC%88t_Stuttgart_Logo.png" height="50" alt="unistuttgart" title="University of Stuttgart"/>
+  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/imprs-is-logo.jpg" height="30" alt="imprs-is" title="imprs-is"/>
+  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/mpi_logo.jpg" height="80" alt="mpi" title="mpi"/>
+  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/dfki_logo.png" height="60" alt="DFKI" title="DFKI"/>
 </p>
 
+-->
 ---
 
 ## Abstract
