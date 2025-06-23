@@ -14,7 +14,7 @@ State-of-the-art medical multi-modal LLMs (med-MLLMs), such as LLAVA-MED and BIO
 To address this, we introduce **EXGRA-MED**, a novel multi-graph alignment framework that jointly aligns images, instruction responses, and extended captions in the latent space, advancing semantic grounding and cross-modal coherence.   To scale to large LLMs (e.g., LLaMa-7B), we develop an efficient end-to-end training scheme using black-box gradient estimation, enabling fast and scalable optimization.  
 
 <p align="center">
-<img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/exgramed_v1.jpg" alt="Alt text" width="1300"/>
+<img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/exgramed_v1.jpg" alt="Alt text" width="1400"/>
 </p>
 
 
