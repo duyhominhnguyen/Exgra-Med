@@ -99,6 +99,12 @@ We provide pre-built `.json` configuration files for all datasets used in VQA tr
 | SLAKE        | VQA        | Train/val splits, QA pairs    | [slake\_config.json](#)    |
 | PATH-VQA     | VQA        | Train/val splits, QA pairs    | [pathvqa\_config.json](#)  |
 
+To download our langauge-image multimodal instruction-folllowing dataset, please run the following script:
+
+```
+sh download_data.sh
+```
+
 
  🔗 **Instructions**:
 
@@ -171,5 +177,6 @@ If you find this work useful, please cite our paper:
 }
 ```
 
-
+## Usage and License Notices: 
+The data, code, and model checkpoints are intended and licensed for research use only. They are also subject to additional restrictions dictated by the Terms of Use: LLaMA, Vicuna and GPT-4 respectively. The data is made available under CC BY NC 4.0. The data, code, and model checkpoints may be used for non-commercial purposes and any models trained using the dataset should be used only for research purposes. It is expressly prohibited for models trained on this data to be used in clinical care or for any clinical decision making purposes.
 
