@@ -77,7 +77,7 @@ exgra-med/
 
 
 -----
-## Fine-tuning on VQA Tasks
+## 🔧 Fine-tuning on VQA Tasks
 We provide ready-to-use scripts to fine-tune **EXGRA-MED** and **EXGRA-MED + DCI** on three popular medical VQA benchmarks: **VQA-RAD**, **SLAKE**, and **PATH-VQA**.
 
 Each script uses one of our pretrained checkpoints as the starting point.  👉 **Before running**, make sure to update the `--pretrained_path` in each `.sh` file to point to the correct location of the downloaded model.
@@ -94,7 +94,7 @@ bash scripts/finetune_pathvqa.sh
 ```
 
 -----
-## Evaluation
+## 📈 Evaluation
 You can run evaluation for each of the three key tasks:
 
 ## 1. Medical VQA Evaluation
@@ -116,16 +116,16 @@ bash scripts/eval_zero_shot.sh
 
 ------
 ## 🔬 Data Efficiency Demonstration (10% vs 40%)
-
 To replicate our findings on LLAVA-MED’s data inefficiency and the strength of EXGRA-MED with 10% and 40% data (Tables 1 & 2 in the paper):
 
-# Fine-tune EXGRA-MED with 10%/40% data on VQA task 
+
 ```
+# Fine-tune EXGRA-MED with 10%/40% data on VQA task 
 bash scripts/train_10percent.sh
 ```
 
-# Fine-tune checkpoint LLaVa-Med with 10%/40% data on VQA task
 ```
+# Fine-tune checkpoint LLaVa-Med with 10%/40% data on VQA task
 bash scripts/train_llava_full.sh
 ```
 
