@@ -74,4 +74,30 @@ exgra-med/
 
 
 -----
+## Fine-tuning on VQA Tasks
+We provide ready-to-use scripts to fine-tune **EXGRA-MED** and **EXGRA-MED + DCI** on three popular medical VQA benchmarks: **VQA-RAD**, **SLAKE**, and **PATH-VQA**.
+
+Each script uses one of our pretrained checkpoints as the starting point.  👉 **Before running**, make sure to update the `--pretrained_path` in each `.sh` file to point to the correct location of the downloaded model.
+
+```
+# Example: Fine-tune on VQA-RAD
+bash scripts/finetune_vqa_rad.sh
+
+# Fine-tune on SLAKE
+bash scripts/finetune_slake.sh
+
+# Fine-tune on PATH-VQA
+bash scripts/finetune_pathvqa.sh
+```
+
+-----
+## Evaluation
+You can run evaluation for each of the three key tasks:
+
+## 1. Medical VQA Evaluation
+
+```
+bash scripts/eval_vqa.sh  # supports VQA-RAD, SLAKE, PATH-VQA
+```
+
 
