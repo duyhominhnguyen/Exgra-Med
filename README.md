@@ -5,6 +5,17 @@
 [![License](https://img.shields.io/github/license/your-username/exgra-med)](./LICENSE)
 [![Website](https://img.shields.io/badge/Demo-Live-green)](https://your-demo-site.com) <!-- Optional -->
 
+## Collaborating Institutions
+
+This project is a joint research effort between the following institutions:
+
+<p align="left">
+  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/Stanford_logo.png" height="60" alt="Stanford University" title="Stanford University"/>
+  <img src="https://github.com/duyhominhnguyen/Exgra-Med/blob/main/figures/eth-zurich_logo.jpg" height="100" alt="ETH Zurich" title="ETH Zurich"/>
+  <img src="figures/logos/hpi_logo.png" height="40" alt="Hasso Plattner Institute" title="Hasso Plattner Institute"/>
+  <img src="figures/logos/vinuni_logo.png" height="40" alt="VinUni" title="VinUni"/>
+</p>
+
 ---
 
 ## Abstract
