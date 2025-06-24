@@ -101,18 +101,40 @@ git clone https://github.com/your_username/exgra-med.git
 cd exgra-med
 conda create -n exgra-med python=3.10
 conda activate exgra-med
-pip install -r requirements.txt
+pip install --upgrade pip
+
+pip uninstall torch torchvision -y
+pip install torch==2.0.0+cu117 torchvision==0.15.1+cu117 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cu117
+pip install openai==0.27.8
+pip uninstall transformers -y
+pip install git+https://github.com/huggingface/transformers@cae78c46
+pip install -e .
+
+pip install einops ninja open-clip-torch
+pip install flash-attn --no-build-isolation
 ```
 
 -----
 ## Project Structure
 ```
 exgra-med/
-├── configs/                   # Training and model configs
 ├── data/                      # Preprocessing scripts and data utils
-├── models/                    # Core EXGRA-MED & DCI architecture
-├── scripts/                   # Shell scripts for training and evaluation
-├── utils/                     # Miscellaneous helpers
+├── bashscript/                # Shell scripts for training and evaluation
+├── figures/
+├── llava.egg-info/
+├── llava/                     # All code scripts for training and evaluation
+    ├── eval/                  # Code scripts for evaluation
+    ├── instruct/
+    ├── model/                 # Core EXGRA-MED & DCI architecture
+    ├── notebook/
+    ├── serve/
+    ├── train/                 # Code scripts for training
+    ├── __init__.py
+    ├── constants.py
+    ├── conversation.py        # Conversation templates
+    ├── openai_api.py
+    ├── utils.py               # Miscellaneous helpers
+├── pyproject.toml             # Necessary packages 
 └── README.md
 
 ```
