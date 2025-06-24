@@ -191,7 +191,7 @@ You can run evaluation for each of the three key tasks:
 # supports VQA-RAD, SLAKE, PATH-VQA
 
 # change the following
-# --model-name: Path to load the model
+# --model-name: Path to load the model from finetuning stage
 # --answers-file: file to store the result (i.e the answers to the medical question)
 python llava/eval/run_med_datasets_eval_batch.py \
 --num-chunks 2 \
