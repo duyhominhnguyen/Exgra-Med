@@ -123,17 +123,17 @@ exgra-med/
 ├── figures/
 ├── llava.egg-info/
 ├── llava/                     # All code scripts for training and evaluation
-    ├── eval/                  # Code scripts for evaluation
-    ├── instruct/
-    ├── model/                 # Core EXGRA-MED & DCI architecture
-    ├── notebook/
-    ├── serve/
-    ├── train/                 # Code scripts for training
-    ├── __init__.py
-    ├── constants.py
-    ├── conversation.py        # Conversation templates
-    ├── openai_api.py
-    └── utils.py               # Miscellaneous helpers
+|   ├── eval/                  # Code scripts for evaluation
+|   ├── instruct/
+|   ├── model/                 # Core EXGRA-MED & DCI architecture
+|   ├── notebook/
+|   ├── serve/
+|   ├── train/                 # Code scripts for training
+|   ├── __init__.py
+|   ├── constants.py
+|   ├── conversation.py        # Conversation templates
+|   ├── openai_api.py
+|   └── utils.py               # Miscellaneous helpers
 ├── pyproject.toml             # Necessary packages 
 └── README.md
 
@@ -228,14 +228,14 @@ bash scripts/eval_zero_shot.sh
 To replicate our findings on LLAVA-MED’s data inefficiency and the strength of EXGRA-MED with 10% and 40% data (Tables 1 & 2 in the paper):
 
 
-```
-# Fine-tune EXGRA-MED with 10%/40% data on VQA task 
-bash scripts/train_10percent.sh
+```bash
+# Fine-tune EXGRA-MED with 10%/40% data on VQA task
+bash bashscript/train_exgra_10percent.sh
 ```
 
-```
+```bash
 # Fine-tune checkpoint LLaVa-Med with 10%/40% data on VQA task
-bash scripts/train_llava_full.sh
+bash bashscript/train_llava_10percent.sh
 ```
 
 ## Citation
