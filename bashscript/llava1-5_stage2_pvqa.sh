@@ -3,7 +3,6 @@ version=_exgra_med_100_scale_${lr}
 model_name_or_path=./models/checkpoint_llava_med_instruct_60k_inline_mention_version_1-5${version}
 output_dir=./weights_finetuned/pvqa-100${version}
 run_name=pvqa-100${version}
-answers_file=./results_finetuned/pvqa/ans-opt-100${version}.jsonl
 
 
 torchrun --nnodes=1 --nproc_per_node=2 --master_port=25056 \

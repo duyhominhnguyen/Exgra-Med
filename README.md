@@ -167,15 +167,18 @@ We provide ready-to-use scripts to fine-tune **EXGRA-MED** and **EXGRA-MED + DCI
 
 Each script uses one of our pretrained checkpoints as the starting point.  👉 **Before running**, make sure to update the `--pretrained_path` in each `.sh` file to point to the correct location of the downloaded model.
 
-```
+```bash
 # Example: Fine-tune on VQA-RAD
-bash scripts/finetune_vqa_rad.sh
+bash bashscript/llava1-5_stage2_data_rad.sh         # without DCI
+bash bashscript/llava1-5_stage2_data_rad_dci.sh     # with DCI
 
 # Fine-tune on SLAKE
-bash scripts/finetune_slake.sh
+bash bashscript/llava1-5_stage2_slake.sh            # without DCI
+bash bashscript/llava1-5_stage2_slake_dci.sh        # with DCI
 
 # Fine-tune on PATH-VQA
-bash scripts/finetune_pathvqa.sh
+bash bashscript/llava1-5_stage2_pvqa.sh            # without DCI
+bash bashscript/llava1-5_stage2_pvqa_dci.sh        # with DCI
 ```
 
 -----
@@ -184,8 +187,29 @@ You can run evaluation for each of the three key tasks:
 
 ## 1. Medical VQA Evaluation
 
-```
-bash scripts/eval_vqa.sh  # supports VQA-RAD, SLAKE, PATH-VQA
+```bash
+# supports VQA-RAD, SLAKE, PATH-VQA
+
+# change the following
+# --model-name: Path to load the model
+# --answers-file: file to store the result (i.e the answers to the medical question)
+python llava/eval/run_med_datasets_eval_batch.py \
+--num-chunks 2 \
+--model-name \<output_vqa_rad_checkpoint\> \
+--mm_dense_connector_type none \
+--num_l 6 \
+--question-file ./data_RAD/test_w_options_new.json \
+--image-folder ./data_RAD/images \
+--answers-file \<answers_file\>
+
+#change the following
+#--pred: same as --answers-file above
+# the metrics (recall and accuracy) are saved as a text file in the same place, with the same name as --pred. 
+#E.g: if --pred is ans-opt-new-3.jsonl, then metrics are saved in ans-opt-new-3.txt
+python llava/eval/run_eval.py \
+--gt ./data_RAD/test_w_options_new.json \
+--pred \<answers_file\> \
+--candidate ./data_RAD/candidate.json
 ```
 
 ## 2. Medical Visual Chatbot
