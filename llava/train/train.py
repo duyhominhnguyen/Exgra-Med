@@ -66,10 +66,6 @@ class ModelArguments:
     num_l: int = field(default=6)
     mm_projector_type: Optional[str] = field(default="linear")
     mm_use_im_start_end: bool = field(default=False)
-    contrastive: bool = field(default=False)
-    contrastive_loss_type: Optional[str] = field(default="infonce")
-    alpha: float = field(default=1.0)
-    temperature: float = field(default=100.0)
     simi_type: Optional[str] = field(default="average")
     lambd: float = field(
         default=0.0051,

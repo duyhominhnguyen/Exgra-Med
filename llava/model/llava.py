@@ -128,19 +128,8 @@ class LlavaLlamaModel(LlamaModel):
                                   pretrain_mm_mlp_adapter=None, tune_mm_mlp_adapter=False):
 
         #############
-        self.contrastive = getattr(model_args, 'contrastive', False)
         self.mm_dense_connector_type = model_args.mm_dense_connector_type
         self.num_l = model_args.num_l
-        if self.contrastive:
-            self.alpha = getattr(model_args, 'alpha', 1.0)
-            self.contrastive_loss_type = getattr(model_args, 'contrastive_loss_type', "infonce")
-            # self.temperature = getattr(model_args, 'temperature', 100.0)
-            self.temperature = nn.Parameter(data=torch.tensor(4.606), requires_grad=True)
-            if self.contrastive_loss_type == "siginfo":
-                self.beta = nn.Parameter(data=torch.tensor(10), requires_grad=True)
-            elif self.contrastive_loss_type == "twins": 
-                self.lambd = getattr(model_args, 'lambd', 0.0051)
-                self.bn = nn.BatchNorm1d(self.config.hidden_size, affine=False)
         #############
         if "BiomedCLIP" in vision_tower:
             self.vision_tower_name = "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224"
@@ -368,11 +357,6 @@ class LlavaLlamaModel(LlamaModel):
             else:
                 image_features = self.mm_projector(image_features) # [B, num_patch, config.hidden_size] = [4, 256, 4096], Z in CG-VLM or [B, num_query, config.hidden_size] = [4,32,4096] if using Qformer
             
-            
-            ##########
-            if self.contrastive:
-                align_input_embeds = []
-            ##########
             new_input_embeds = []
             cur_image_idx = 0
             for cur_input_ids, cur_input_embeds in zip(input_ids, inputs_embeds): #loop through each conversation in a batch, cur_input_embeds: [329, 4096]
@@ -386,13 +370,7 @@ class LlavaLlamaModel(LlamaModel):
                     if (cur_input_ids == vision_tower.config.im_start_token).sum() != (cur_input_ids == vision_tower.config.im_end_token).sum():
                         raise ValueError("The number of image start tokens and image end tokens should be the same.")
                     image_start_tokens = torch.where(cur_input_ids == vision_tower.config.im_start_token)[0]
-                    if self.contrastive: 
-                        image_end_tokens = torch.where(cur_input_ids == vision_tower.config.im_end_token)[0]
-                        pad_start_tokens = torch.where(cur_input_ids == 32000)[0]
-                        if pad_start_tokens.nelement() == 0: 
-                            pad_start_tokens = torch.tensor([len(cur_input_ids)]).to(cur_input_ids.device)
-                        else: 
-                            pad_start_tokens = pad_start_tokens[0].reshape(1)
+                    
                     for image_start_token_pos in image_start_tokens:
                         cur_image_features = image_features[cur_image_idx].to(device=cur_input_embeds.device)
                         num_patches = cur_image_features.shape[0]
@@ -408,16 +386,7 @@ class LlavaLlamaModel(LlamaModel):
                             cur_new_input_embeds = torch.cat((cur_input_embeds[:image_start_token_pos+1], cur_image_features, cur_input_embeds[image_start_token_pos + num_patches + 1:]), dim=0)
                         cur_image_idx += 1
                     new_input_embeds.append(cur_new_input_embeds)
-                    ##############
-                    if self.contrastive:
-                        for image_end_token_pos, pad_start_tokens_pos in zip(image_end_tokens, pad_start_tokens):
-                            cur_new_input_embeds = cur_input_embeds[image_end_token_pos+5:pad_start_tokens_pos-4]
-                        if self.contrastive_loss_type != "twins":
-                            align_input_embeds.append(cur_new_input_embeds)# list of [T_i, 4096], with T_i is length of sentence i in batch 
-                        else: 
-                            align_input_embeds.append(cur_new_input_embeds.mean(dim=0))
-
-                    ##############
+                    
                 else:
                     cur_image_features = image_features[cur_image_idx]
                     num_patches = cur_image_features.shape[0]
@@ -433,57 +402,14 @@ class LlavaLlamaModel(LlamaModel):
                         cur_new_input_embeds = torch.cat((cur_input_embeds[:mask_index_start], cur_image_features, cur_input_embeds[mask_index_start+num_patches:]), dim=0)
                     new_input_embeds.append(cur_new_input_embeds)
             inputs_embeds = torch.stack(new_input_embeds, dim=0) # [4,329,4096] ?
-            if self.contrastive and self.contrastive_loss_type == "twins": 
-                align_input_embeds = torch.stack(align_input_embeds, dim= 0) # [4,4096] ?
-            #####################
-            if self.contrastive:
-                # print("Use contrastive mechanism.")
-                align_image_features = image_features.clone() # [B, num_patch, config.hidden_size] = [4, 256, 4096], Z in CG-VLM
-                align_image_features_pool = align_image_features.mean(dim = 1) # [B, config.hidden_size] = [4,4096]
-                
-                if self.contrastive_loss_type == "infonce" or self.contrastive_loss_type == "siginfo":
-                    align_image_features_pool = align_image_features_pool/align_image_features_pool.norm(dim=1)[:, None]
-
-                    matrixSimi = torch.zeros(align_image_features.shape[0], align_image_features.shape[0], device=image_features.device, dtype=image_features.dtype)
-                    for i, align_input in enumerate(align_input_embeds): # align_input: [T_j, 4096], E^j
-                        align_input_norm = align_input/align_input.norm(dim=1)[:, None]
-                        # simi = F.cosine_similarity(align_image_features_pool[None, :, :], align_input[:,None,:], dim=-1).T
-                        simi = torch.mm(align_image_features_pool, align_input_norm.transpose(0, 1))
-
-                        simi = simi.mean(dim = 1)
-                        matrixSimi[:, i] = torch.exp(self.temperature)*simi
-                
-                    if self.contrastive_loss_type == "infonce":
-                        targetAlign = torch.arange(align_image_features.shape[0]).to(image_features.device)
-                        lossAlign = CrossEntropyLoss()(matrixSimi, targetAlign)
-                        lossAlign = lossAlign*self.alpha
-                    elif self.contrastive_loss_type == "siginfo":
-                        matrixSimi += self.beta
-                        targetAlign = (2*torch.eye(align_image_features.shape[0]) - torch.ones(align_image_features.shape[0])).to(image_features.device)
-                        lossAlign = -1.0*torch.sum(torch.nn.LogSigmoid()(matrixSimi*targetAlign))/align_image_features.shape[0]
-                        lossAlign = lossAlign*self.alpha
-                elif self.contrastive_loss_type == "twins": # TODO: fix twins by duplicating one image to the number of tokens in the corresponding sequence and applying eq (3) in CG-VLM
-                    c = self.bn(align_image_features_pool).T @ self.bn(align_input_embeds)
-                    c.div_(align_image_features_pool.shape[0]*torch.cuda.device_count())
-                    torch.distributed.all_reduce(c)
-                    on_diag = torch.diagonal(c).add_(-1).pow_(2).sum()
-                    off_diag = self.off_diagonal(c).pow_(2).sum()
-                    lossAlign = on_diag + self.lambd * off_diag
-                    lossAlign = lossAlign*self.alpha
-                    
-            #####################
-        if not hasattr(self, 'alpha'):
-            self.alpha = 1.0
-
-        if not hasattr(self, 'temperature'):
-            self.temperature = torch.tensor(0)
+            
             
         return super(LlavaLlamaModel, self).forward(
             input_ids=None, attention_mask=attention_mask, past_key_values=past_key_values,
             inputs_embeds=inputs_embeds, use_cache=use_cache,
             output_attentions=output_attentions, output_hidden_states=output_hidden_states,
             return_dict=return_dict
-        ), lossAlign, self.alpha, torch.exp(self.temperature)
+        ), lossAlign
 
 
 class LlavaLlamaForCausalLM(LlamaForCausalLM):
@@ -519,7 +445,7 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
-        outputs, lossAlign, alphaArg, tempPa = self.model(
+        outputs, lossAlign = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
             text_input = text_input,

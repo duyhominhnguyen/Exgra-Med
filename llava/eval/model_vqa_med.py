@@ -120,7 +120,6 @@ def eval_model(args):
         if "BiomedCLIP" in model_name or "biomed_clip" in model_name or "biomed" in model_name:
             model = LlavaLlamaForCausalLM.from_pretrained(model_name, use_cache=True).cuda()
             model = model.to(torch.float16)
-            model.model.contrastive = args.contrastive
             model.model.mm_dense_connector_type = args.mm_dense_connector_type
             model.model.num_l = args.num_l
             image_processor = CLIPImageProcessor.from_pretrained("openai/clip-vit-base-patch16")
@@ -132,7 +131,6 @@ def eval_model(args):
             setattr(vision_tower, 'config', vision_config)
         else:
             model = LlavaLlamaForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, use_cache=True).cuda()
-            model.model.contrastive = args.contrastive
             model.model.mm_dense_connector_type = args.mm_dense_connector_type
             model.model.num_l = args.num_l
             #### Trung: similar to initialize_vision_modules()
@@ -344,7 +342,6 @@ if __name__ == "__main__":
     parser.add_argument("--question-file", type=str, default="tables/question.json")
     parser.add_argument("--answers-file", type=str, default="answer.jsonl")
     parser.add_argument("--mm-projector", type=str, default=None)
-    parser.add_argument("--contrastive", action="store_true")
     parser.add_argument("--vision-tower", type=str, default=None)
     parser.add_argument("--conv-mode", type=str, default="simple")
     parser.add_argument("--num-chunks", type=int, default=1)
