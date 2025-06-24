@@ -165,7 +165,7 @@ sh download_data.sh
 ## 🔧 Fine-tuning on VQA Tasks
 We provide ready-to-use scripts to fine-tune **EXGRA-MED** and **EXGRA-MED + DCI** on three popular medical VQA benchmarks: **VQA-RAD**, **SLAKE**, and **PATH-VQA**.
 
-Each script uses one of our pretrained checkpoints as the starting point.  👉 **Before running**, make sure to update the `--pretrained_path` in each `.sh` file to point to the correct location of the downloaded model.
+Each script uses one of our pretrained checkpoints as the starting point.  👉 **Before running**, make sure to update the `--model_name_or_path` in each `.sh` file to point to the correct location of the downloaded model.
 
 ```bash
 # Example: Fine-tune on VQA-RAD
