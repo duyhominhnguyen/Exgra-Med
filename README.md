@@ -133,7 +133,7 @@ exgra-med/
     ├── constants.py
     ├── conversation.py        # Conversation templates
     ├── openai_api.py
-    ├── utils.py               # Miscellaneous helpers
+    └── utils.py               # Miscellaneous helpers
 ├── pyproject.toml             # Necessary packages 
 └── README.md
 
