@@ -54,7 +54,7 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 ---
 ## Table of Contents
 
-- [ News](#-news)
+- [📣 News](#-news)
 - [📦 Model Checkpoints](#-model-checkpoints)
 - [🛠️ Installation](#️-installation)
 - [📂 Project Structure](#project-structure)
@@ -68,7 +68,7 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 - [📖 Citation](#citation)
 
 ---
-## News
+## 📣 News
 
 - **[Jun 2025]** 🔓 Initial codebase release (preprocessing + VQA fine-tuning).
 - **[Jun 2025]** 🧩 Checkpoints for EXGRA-MED + DCI and three VQA fine-tuned models now available.
