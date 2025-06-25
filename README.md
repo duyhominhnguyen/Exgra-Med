@@ -56,7 +56,7 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 
 - [📣 News](#-news)
 - [📦 Model Checkpoints](#-model-checkpoints)
-- [🛠️ Installation](#️-installation)
+- [🛠️ Installation](#installation)
 - [📂 Project Structure](#project-structure)
 - [📄 Dataset Configuration Files](#-dataset-configuration-files)
 - [🔧 Fine-tuning on VQA Tasks](#-fine-tuning-on-vqa-tasks)
