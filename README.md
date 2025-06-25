@@ -78,17 +78,17 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 
 ## 📦 Model Checkpoints
 
-| Model                                  | Description                                | Download Link |
+| Model                                  | Description                                |🤗 Download Link |
 |----------------------------------------|--------------------------------------------|---------------|
-| `llava-med-10`                            | LLaVa-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
-| `llava-med-40`                            | LLaVa-Med (40% pre-trained PMC-15M)                   | [Link](#)     |
-| `exgra-med-10`                            | ExGra-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
-| `exgra-med-40`                            | ExGra-Med (40% pre-trained PMC-15M)                   | [Link](#)     |
-| `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](#)     |
-| `exgra-med-dci`                        | EXGRA-MED + DCI-enhanced version           | [Link](#)     |
-| `exgra-med-dci-vqa-rad`               | Fine-tuned on VQA-RAD                      | [Link](#)     |
-| `exgra-med-dci-slake`                 | Fine-tuned on SLAKE                        | [Link](#)     |
-| `exgra-med-dci-pathvqa`               | Fine-tuned on PATH-VQA                     | [Link](#)     |
+| `llava-med-10`                            | LLaVa-Med (10% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/llava-med-10)     |
+| `llava-med-40`                            | LLaVa-Med (40% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/llava-med-40)     |
+| `exgra-med-10`                            | ExGra-Med (10% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/exgra-med-10)     |
+| `exgra-med-40`                            | ExGra-Med (40% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/exgra-med-40)     |
+| `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/exgra-med)     |
+| `exgra-med-dci`                        | EXGRA-MED + DCI-enhanced version           | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci)     |
+| `exgra-med-dci-vqa-rad`               | Fine-tuned on VQA-RAD                      | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci-vqa-rad)     |
+| `exgra-med-dci-slake`                 | Fine-tuned on SLAKE                        | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci-slake)     |
+| `exgra-med-dci-pathvqa`               | Fine-tuned on PATH-VQA                     | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci-pathvqa)     |
 
 ---
 
