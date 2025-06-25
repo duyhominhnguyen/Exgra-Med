@@ -84,8 +84,6 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 | `llava-med-40`                            | LLaVa-Med (40% pre-trained PMC-15M)                   | [Link](#)     |
 | `exgra-med-10`                            | ExGra-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
 | `exgra-med-40`                            | ExGra-Med (40% pre-trained PMC-15M)                   | [Link](#)     |
-| `exgra-med`                            | ExGra-Med (10% pre-trained PMC-15M)                   | [Link](#)     |
-| `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](#)     |
 | `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](#)     |
 | `exgra-med-dci`                        | EXGRA-MED + DCI-enhanced version           | [Link](#)     |
 | `exgra-med-dci-vqa-rad`               | Fine-tuned on VQA-RAD                      | [Link](#)     |
