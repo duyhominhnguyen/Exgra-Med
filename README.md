@@ -2,7 +2,7 @@
 
 [![ArXiv](https://img.shields.io/badge/Paper-ArXiv-b31b1b.svg)](https://arxiv.org/pdf/2410.02615v3)
 [![Hugging Face](https://img.shields.io/badge/🤗%20Model-HuggingFace-blue)](https://huggingface.co/MERGE-Group)
-[![License](https://img.shields.io/github/license/your-username/exgra-med)](./LICENSE)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC--BY--NC%204.0-lightgrey.svg)](https://github.com/duyhominhnguyen/Exgra-Med/blob/main/LICENSE)
 [![Website](https://img.shields.io/badge/Demo-Live-green)](https://your-demo-site.com) <!-- Optional -->
 
 <!--
