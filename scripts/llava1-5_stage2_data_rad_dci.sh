@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 export WORKDIR=$(pwd)/exgra_med
 # Add the working directory to the PYTHONPATH
 export PYTHONPATH="$WORKDIR:$PYTHONPATH"
