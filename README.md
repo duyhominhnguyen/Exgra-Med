@@ -77,7 +77,7 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 - **[Jun 2025]** 🧩 Checkpoints for EXGRA-MED + DCI and three VQA fine-tuned models now available.
 - **[Jun 2025]** 📊 Evaluation scripts and demo for the data-efficiency benchmark for VQA are online.
 - **Coming Soon** 🚧  Evaluation Scripts for Medical Visual Chatbot and Zero-shot Image Classification.
-- **Coming Soon** 🚧  ExGra-Med checkpoints are trained at large-scale data with 2.5M instruction tuning data from [MedTrinity-25M](https://arxiv.org/pdf/2408.02900) (10%).
+- **Coming Soon** 🚧  ExGra-Med checkpoints are trained at large-scale data with 2.5M instruction tuning samples from [MedTrinity-25M](https://arxiv.org/pdf/2408.02900) (10%).
 
 ---
 
