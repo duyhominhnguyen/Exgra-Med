@@ -255,12 +255,18 @@ python exgra_med/llava/eval/run_eval.py \
 ```
 
 ## 2. Medical Visual Chatbot
+
+🚧 **To be updated!**
 ```
 bash scripts/eval_chatbot.sh
 ```
 
 ## 3. Zero-shot Image Classification
 By reformulating image classification as visual question answering, we can generate predictions by solving the VQA task with multiple-choice questions.
+
+🚧 **To be updated!** 
+
+
 ```
 bash scripts/eval_zero_shot.sh
 ```
@@ -272,7 +278,7 @@ To replicate our findings on LLAVA-MED’s data inefficiency and the strength of
 
 ```bash
 # Fine-tune EXGRA-MED with 10%/40% data on VQA task
-bash scripts/train_exgra_10percent.sh
+bash scripts/train_exgra_10percent.sh #
 ```
 
 ```bash
