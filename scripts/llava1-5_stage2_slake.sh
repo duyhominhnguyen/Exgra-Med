@@ -1,5 +1,5 @@
 !/bin/bash
-export WORKDIR=$(pwd)
+export WORKDIR=$(pwd)/exgra_med
 # Add the working directory to the PYTHONPATH
 export PYTHONPATH="$WORKDIR:$PYTHONPATH"
 lr=4e-5
@@ -10,7 +10,7 @@ run_name=slake-100${version}
 
 
 torchrun --nnodes=1 --nproc_per_node=2 --master_port=25057 \
-    src/llava/train/train_mem.py \
+    llava/train/train_mem.py \
     --model_name_or_path=${model_name_or_path} \
     --data_path ./Slake1.0/train_w_options_new.json \
     --image_folder ./Slake1.0/images \
