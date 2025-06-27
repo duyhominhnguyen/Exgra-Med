@@ -75,7 +75,7 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 
 - **[Jun 2025]** 🔓 Initial codebase release (preprocessing + VQA fine-tuning).
 - **[Jun 2025]** 🧩 Checkpoints for EXGRA-MED + DCI and three VQA fine-tuned models now available.
-- **[Jun 2025]** 📊 Evaluation scripts and demo for data-efficiency benchmark now online.
+- **[Jun 2025]** 📊 Evaluation scripts and demo for data-efficiency benchmark for VQA are online.
 
 ---
 
