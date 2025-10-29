@@ -203,6 +203,44 @@ bash scripts/download_data.sh
 - Update file paths inside if needed to match your local dataset locations.
 
 -----
+## 🖇️ Extended Instructions Generation
+The script [`extended_caption_generation.py`](exgra_med/data_preprocessing/extended_caption_generation.py) reads an input JSON of instructions/conversations, sends each question+answer pair to an LLM with a provided [system prompt](exgra_med/prompts/extend_caption.txt), and replaces the answer with the LLM-provided revision. It supports resuming from an existing extended output file.
+
+Input JSON should contain items with a `conversations` (or misspelled `conversatons`) key whose value is a list of role objects. The script pairs even-indexed entries (questions) with the following odd-indexed entries (answers) and updates the answer `value` with the LLM `revision`.
+
+Output file: if not resuming, a timestamped file is created next to the input file with suffix `_extended_<model>_<timestamp>.json`. When resuming, pass `--resume_from` to continue.
+
+Create a `.env` file (or set environment variables) with the OpenRouter/OpenAI endpoint and API key used by the `OpenAI` client. Example `.env`:
+
+```plaintext
+OPENROUTER_ENDPOINT=https://openrouter.ai/api/v1
+OPENROUTER_API_KEY=sk-...
+```
+
+Basic usage:
+
+```python
+python extended_caption_generation.py
+  --original_instruction_fpath path/to/original_instructions.json
+  --system_prompt_fpath path/to/system_prompt.txt
+```
+
+Options:
+- `--original_instruction_fpath` (required): Path to input JSON with instructions/conversations.
+- `--system_prompt_fpath` (required): Path to a text file containing the system prompt to send to the LLM.
+- `--resume_from` (optional): Path to an existing extended JSON to resume from (skips already-processed ids).
+- `--model_name` (optional): LLM model identifier (default: `openai/gpt-4o-mini`). List of reported models: openai/gpt-4o, google/gemini-2.5-flash, qwen/qwen3-8b.
+
+Example with model and resume:
+
+```python
+python extended_caption_generation.py
+  --original_instruction_fpath data/original.json
+  --system_prompt_fpath prompts/system_prompt.txt
+  --model_name openai/gpt-4o-mini
+  --resume_from data/original_extended_gpt-4o-mini_20250101_120000.json
+```
+
 ## 🔧 Fine-tuning on VQA Tasks
 We provide ready-to-use scripts to fine-tune **EXGRA-MED** and **EXGRA-MED + DCI** on three popular medical VQA benchmarks: **VQA-RAD**, **SLAKE**, and **PATH-VQA**.
 

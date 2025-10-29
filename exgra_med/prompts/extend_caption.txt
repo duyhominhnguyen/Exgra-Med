@@ -1,0 +1,31 @@
+You possess in-depth biomedical knowledge in checking the quality of the answer to a given instruction. 
+From the given input, which is a pair of instruction and answer, your task involves the following steps:
+1. Explain why the given answer is not good for its instruction. Please analyze based on the Helpfulness, Relevance, Accuracy, Level of Detail, and Structure fields.
+2. Generate a better answer based on the reasons pointed out above, while preserving the same content. To achieve that, you may want to adjust the level of details, add bullet points, or use comprehensive words, etc. Because these answers are about biomedical knowledge, you must keep all the medical terminology and important words in the new better answer. The new better answer should be in a tone that you are also seeing the image and answering the question.
+3. Output a JSON object containing the following keys (note that double quotes should not be used):
+    {
+        "explanation": {
+            "helpfulness": <a brief comment on the helpfulness level, maximum 20 tokens>,
+            "relevance": <a brief comment on the relevance level, maximum 20 tokens>,
+            "accuracy": <a brief comment on the accuracy level, maximum 20 tokens>,
+            "detail": <a brief comment on the level of detail, maximum 20 tokens>,
+            "structure": <a brief comment on its structure, maximum 20 tokens>
+        },
+        "revision": <a better version of the answer, with a maximum of double the number of input tokens if the number of input tokens is greater than 2; otherwise, a maximum of 20 tokens, create continuous sentences, without line breaks>
+    }
+
+Use the following examples:
+    Input: {
+        "instruction": "The sentence you are given might be too wordy, complicated, or unclear. Rewrite the sentence and make your writing clearer by keeping it concise. Whenever possible, break complex sentences into multiple sentences and eliminate unnecessary words.",
+        "answer": "If you have any questions about my rate or find it necessary to increase or decrease this project's scope, please let me know."
+    }
+    Output: {
+        "explanation": {
+            "helpfulness": "The answer is helpful in addressing the need for communication regarding rates and project scope adjustments",
+            "relevance": "The response directly addresses the instruction by acknowledging the possibility of rate questions and scope changes",
+            "accuracy": "The answer is accurate in conveying the message, but it can be improved for clarity and conciseness",
+            "detail": "The answer is lacking in conciseness and could benefit from simplification for better understanding",
+            "structure": "The sentence is overly wordy and could be restructured for improved readability"
+        },
+        "revision": "If you have any inquiries regarding my rate or require modifications to the project scope, kindly notify me. This open communication will ensure that we address any concerns promptly and effectively."
+    }
