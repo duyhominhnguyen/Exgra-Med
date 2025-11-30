@@ -176,3 +176,5 @@ data
 outputs
 pretrained
 llava.egg-info
+
+.DS_Store
