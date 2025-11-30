@@ -85,15 +85,15 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 
 | Model                                  | Description                                |🤗 Download Link |
 |----------------------------------------|--------------------------------------------|---------------|
-| `llava-med-10`                            | LLaVa-Med (10% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/llava-med-10)     |
-| `llava-med-40`                            | LLaVa-Med (40% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/llava-med-40)     |
-| `exgra-med-10`                            | ExGra-Med (10% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/exgra-med-10)     |
-| `exgra-med-40`                            | ExGra-Med (40% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/exgra-med-40)     |
-| `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/exgra-med)     |
-| `exgra-med-dci`                        | EXGRA-MED + DCI-enhanced version           | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci)     |
-| `exgra-med-dci-vqa-rad`               | Fine-tuned on VQA-RAD                      | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci-vqa-rad)     |
-| `exgra-med-dci-slake`                 | Fine-tuned on SLAKE                        | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci-slake)     |
-| `exgra-med-dci-pathvqa`               | Fine-tuned on PATH-VQA                     | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci-pathvqa)     |
+| `llava-med-10`                            | LLaVa-Med (10% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/llava-med-10/tree/main)     |
+| `llava-med-40`                            | LLaVa-Med (40% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/llava-med-40/tree/main)     |
+| `exgra-med-10`                            | ExGra-Med (10% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/exgra-med-10/tree/main)     |
+| `exgra-med-40`                            | ExGra-Med (40% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/exgra-med-40/tree/main)     |
+| `exgra-med`                            | Our base EXGRA-MED model (100% pre-trained PMC-15M)                   | [Link](https://huggingface.co/MERGE-Group/exgra-med/tree/main)     |
+| `exgra-med-dci`                        | EXGRA-MED + DCI-enhanced version           | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci/tree/main)     |
+| `exgra-med-dci-vqa-rad`               | Fine-tuned on VQA-RAD                      | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci-vqa-rad/tree/main)     |
+| `exgra-med-dci-slake`                 | Fine-tuned on SLAKE                        | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci-slake/tree/main)     |
+| `exgra-med-dci-pathvqa`               | Fine-tuned on PATH-VQA                     | [Link](https://huggingface.co/MERGE-Group/exgra-med-dci-pathvqa/tree/main)     |
 
 <!-- --- -->
 Before starting the finetuning/inference/evaluation, download our finetuned checkpoints.
@@ -185,9 +185,9 @@ We provide pre-built `.json` configuration files for all datasets used in VQA tr
 
 | Dataset      | Task       | Config File Description       | Download Link              |
 | ------------ | ---------- | ----------------------------- | -------------------------- |
-| VQA-RAD      | VQA        | Train/val splits, QA pairs    | [vqa\_rad\_config.json](#) |
-| SLAKE        | VQA        | Train/val splits, QA pairs    | [slake\_config.json](#)    |
-| PATH-VQA     | VQA        | Train/val splits, QA pairs    | [pathvqa\_config.json](#)  |
+| VQA-RAD      | VQA        | Train/val splits, QA pairs    | [link](https://huggingface.co/datasets/MERGE-Group/VQA-RAD) |
+| SLAKE        | VQA        | Train/val splits, QA pairs    | [link](https://huggingface.co/datasets/MERGE-Group/SLAKE)    |
+| PATH-VQA     | VQA        | Train/val splits, QA pairs    | [link](https://huggingface.co/datasets/MERGE-Group/PATH-VQA)  |
 
 To download our language-image multimodal instruction-folllowing dataset, please run the following script:
 
