@@ -181,7 +181,7 @@ pip install flash-attn --no-build-isolation
 
 --------
 ## 📄 Dataset Configuration Files
-We provide pre-built `.json` configuration files for all datasets used in VQA training and evaluation. These files specify paths, splits, and preprocessing parameters necessary for seamless execution.
+We provide pre-built `.json` configuration files for all datasets used in VQA training and evaluation in downstream tasks. These files specify paths, splits, and preprocessing parameters necessary for seamless execution. Firstly, create each dataset folder in folder `data/`, then put the corresponding dataset `.json` files into folders. Next, please see websites for datasets [VQA-RAD](https://www.kaggle.com/datasets/shashankshekhar1205/vqa-rad-visual-question-answering-radiology), [SLAKE 1.0](https://www.med-vqa.com/slake/), and [PATH-VQA](https://github.com/KaveeshaSilva/PathVQA) to download `image` folders and upload them into corresponding dataset folders in `data/` folder.
 
 | Dataset      | Task       | Config File Description       | Download Link              |
 | ------------ | ---------- | ----------------------------- | -------------------------- |
