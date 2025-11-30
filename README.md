@@ -192,7 +192,7 @@ We provide pre-built `.json` configuration files for all datasets used in VQA tr
 | PATH-VQA     | VQA        | Train/val splits, QA pairs    | [link](https://huggingface.co/datasets/MERGE-Group/PATH-VQA)  |
 
  🔗 **Pre-Training Stage**:
-To download dataset for pre-training stage using both **Exgra-Med** and original **LLaVA-Med** algorithms, downloading `.json` files for stage 1 (alignment) and stage 2 (instruction) in this [link](https://huggingface.co/datasets/MERGE-Group/Extended-Caption-GPT). Next, create new folder `pretraining_data/` in `data/` folder and upload downloaded jsons combined with `images/` folder into `pretraining_data/` folder. Please note that update dataset file paths inside `.sh` training files in `scripts/` folder if needed to match your local dataset locations.
+To prepare dataset for pre-training stage using both **Exgra-Med** and original **LLaVA-Med** algorithms, downloading `.json` files for stage 1 (alignment) and stage 2 (instruction) in this [link](https://huggingface.co/datasets/MERGE-Group/Extended-Caption-GPT). Next, create new folder `pretraining_data/` in `data/` folder and upload downloaded jsons combined with `images/` folder into `pretraining_data/` folder. Please note that update dataset file paths inside `.sh` training files in `scripts/` folder if needed to match your local dataset locations.
 
 
 -----
