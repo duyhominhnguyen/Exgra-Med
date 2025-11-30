@@ -181,6 +181,8 @@ pip install flash-attn --no-build-isolation
 
 --------
 ## 📄 Dataset Configuration Files
+
+ 🔗 **Downstream Stage**:
 We provide pre-built `.json` configuration files for all datasets used in VQA training and evaluation in downstream tasks. These files specify paths, splits, and preprocessing parameters necessary for seamless execution. Firstly, create each dataset folder in folder `data/`, then put the corresponding dataset `.json` files into folders. Next, please see websites for datasets [VQA-RAD](https://www.kaggle.com/datasets/shashankshekhar1205/vqa-rad-visual-question-answering-radiology), [SLAKE 1.0](https://www.med-vqa.com/slake/), and [PATH-VQA](https://github.com/KaveeshaSilva/PathVQA) to download `images/` folders and upload them into corresponding dataset folders in `data/` folder.
 
 | Dataset      | Task       | Config File Description       | Download Link              |
@@ -189,14 +191,9 @@ We provide pre-built `.json` configuration files for all datasets used in VQA tr
 | SLAKE        | VQA        | Train/val splits, QA pairs    | [link](https://huggingface.co/datasets/MERGE-Group/SLAKE)    |
 | PATH-VQA     | VQA        | Train/val splits, QA pairs    | [link](https://huggingface.co/datasets/MERGE-Group/PATH-VQA)  |
 
-To download dataset for pre-training stage using both **Exgra-Med** and original **LLaVA-Med** algorithms, downloading `.json` files for stage 1 (alignment) and stage 2 (instruction) in this [link](https://huggingface.co/datasets/MERGE-Group/Extended-Caption-GPT). Next, create new folder `pretraining_data/` in `data/` folder and upload downloaded jsons combined with `images/` folder into `pretraining_data/` folder.
+ 🔗 **Pre-Training Stage**:
+To download dataset for pre-training stage using both **Exgra-Med** and original **LLaVA-Med** algorithms, downloading `.json` files for stage 1 (alignment) and stage 2 (instruction) in this [link](https://huggingface.co/datasets/MERGE-Group/Extended-Caption-GPT). Next, create new folder `pretraining_data/` in `data/` folder and upload downloaded jsons combined with `images/` folder into `pretraining_data/` folder. Please note that update dataset file paths inside `.sh` training files in `scripts/` folder if needed to match your local dataset locations.
 
-
- 🔗 **Instructions**:
-
-- Place the downloaded `.json` files under the `configs/datasets/` directory.
-
-- Update file paths inside if needed to match your local dataset locations.
 
 -----
 ## 🖇️ Extended Instructions Generation
