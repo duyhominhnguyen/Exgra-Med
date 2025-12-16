@@ -293,13 +293,10 @@ bash scripts/eval_chatbot.sh
 ```
 
 ## 3. Zero-shot Image Classification
-By reformulating image classification as visual question answering, we can generate predictions by solving the VQA task with multiple-choice questions.
-
-🚧 **To be updated!** 
-
+By reformulating image classification as visual question answering, we can generate predictions by solving the VQA task with multiple-choice questions. First, download OmniMedVQA benchmark  from [OpenDataLab](https://openxlab.org.cn/datasets/GMAI/OmniMedVQA) or [huggingface](https://huggingface.co/datasets/foreverbeliever/OmniMedVQA/tree/main) and unzip it. Follow instructions in the file [`zero_shot_classification.sh`](scripts/zero_shot_classification.sh) to change variables `FILENAME`, `OUTPUTNAME`, `WORKDIR` and `MODEL_CKPT` and `CONNECTOR_TYPE`. Then run:
 
 ```
-bash scripts/eval_zero_shot.sh
+bash scripts/zero_shot_classification.sh
 ```
 
 ------
