@@ -153,6 +153,7 @@ pip install openai==0.27.8
 pip install git+https://github.com/huggingface/transformers@cae78c46
 pip install -e .
 pip install einops ninja open-clip-torch shortuuid nltk
+pip install --upgrade pillow
 ```
 
 Also, based on your CUDA driver, please check the proper version of [Flash Attention 2](https://github.com/Dao-AILab/flash-attention) at this [link](https://github.com/Dao-AILab/flash-attention/releases), and then install `flash-attn` package:
