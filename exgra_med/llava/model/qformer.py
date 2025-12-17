@@ -1,11 +1,11 @@
 """
- * Copyright (c) 2023, salesforce.com, inc.
- * All rights reserved.
- * SPDX-License-Identifier: BSD-3-Clause
- * For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
- * By Junnan Li
- * Based on huggingface code base
- * https://github.com/huggingface/transformers/blob/v4.15.0/src/transformers/models/bert
+* Copyright (c) 2023, salesforce.com, inc.
+* All rights reserved.
+* SPDX-License-Identifier: BSD-3-Clause
+* For full license text, see LICENSE.txt file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+* By Junnan Li
+* Based on huggingface code base
+* https://github.com/huggingface/transformers/blob/v4.15.0/src/transformers/models/bert
 """
 
 import math
@@ -1204,7 +1204,8 @@ class BertForMaskedLM(BertPreTrainedModel):
             attentions=outputs.attentions,
         )
 
-#class LayerNorm(nn.LayerNorm):
+
+# class LayerNorm(nn.LayerNorm):
 #    """Subclass torch's LayerNorm to handle fp16."""
 
 #    def forward(self, x: torch.Tensor):
@@ -1212,20 +1213,33 @@ class BertForMaskedLM(BertPreTrainedModel):
 #        ret = super().forward(x.type(torch.float32))
 #        return ret.type(orig_type)
 
+
 def init_tokenizer(truncation_side="right"):
-    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased", truncation_side=truncation_side)
-    tokenizer.add_special_tokens({"bos_token": "[DEC]"}) # why need to add special tokens ?
+    tokenizer = BertTokenizer.from_pretrained(
+        "bert-base-uncased", truncation_side=truncation_side
+    )
+    tokenizer.add_special_tokens(
+        {"bos_token": "[DEC]"}
+    )  # why need to add special tokens ?
     return tokenizer
 
 
 def init_Qformer(num_query_token, vision_width, cross_attention_freq=2):
-    encoder_config = BertConfig.from_pretrained("bert-base-uncased") #BertConfig is from huggingface
+    encoder_config = BertConfig.from_pretrained(
+        "bert-base-uncased"
+    )  # BertConfig is from huggingface
     encoder_config.encoder_width = vision_width
     # insert cross-attention layer every other block
-    encoder_config.add_cross_attention = True # insert cross-attention to Bert because it is encoder model
+    encoder_config.add_cross_attention = (
+        True  # insert cross-attention to Bert because it is encoder model
+    )
     encoder_config.cross_attention_freq = cross_attention_freq
     encoder_config.query_length = num_query_token
-    Qformer = BertLMHeadModel.from_pretrained("bert-base-uncased", config=encoder_config)
-    query_tokens = nn.Parameter(torch.zeros(1, num_query_token, encoder_config.hidden_size))
+    Qformer = BertLMHeadModel.from_pretrained(
+        "bert-base-uncased", config=encoder_config
+    )
+    query_tokens = nn.Parameter(
+        torch.zeros(1, num_query_token, encoder_config.hidden_size)
+    )
     query_tokens.data.normal_(mean=0.0, std=encoder_config.initializer_range)
     return Qformer, query_tokens

@@ -2,7 +2,6 @@
 export WORKDIR=$(pwd)/exgra_med
 # Add the working directory to the PYTHONPATH
 export PYTHONPATH="$WORKDIR:$PYTHONPATH"
-
 lr=2e-5
 version=_exgra_med_dci_100_scale_${lr}
 model_name_or_path=./models/checkpoint_llava_med_instruct_60k_inline_mention_version_1-5${version}
@@ -11,7 +10,7 @@ run_name=data_RAD-100${version}
 
 
 torchrun --nnodes=1 --nproc_per_node=2 --master_port=25056 \
-    llava/train/train_mem.py \
+    exgra_med/llava/train/train_mem.py \
     --model_name_or_path=${model_name_or_path} \
     --data_path ./data_RAD/train_w_options_new.json \
     --image_folder ./data_RAD/images \
