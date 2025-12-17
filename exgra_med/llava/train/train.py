@@ -71,7 +71,6 @@ class ModelArguments:
         default=0.0051,
         metadata={"help": "for Barlow Twins, weight on off-diagonal terms"},
     )
-    qformer_path: Optional[str] = field(default=None)
     prompt_mode: Optional[str] = field(default="simple")
 
 
@@ -471,8 +470,6 @@ class LazySupervisedDataset(Dataset):
             cur_token_len = (image.shape[1] // patch_size) * (
                 image.shape[2] // patch_size
             )  # FIXME: 14 is hardcoded patch size
-            if self.multimodal_cfg["use_qformer_query_as_image_token"]:
-                cur_token_len = 32
 
             try:
                 sources = copy.deepcopy([e["conversations"] for e in sources])
@@ -553,9 +550,6 @@ def make_supervised_data_module(
     dataset_cls = (
         LazySupervisedDataset if data_args.lazy_preprocess else SupervisedDataset
     )
-    use_qformer_query_as_image_token = (
-        True if model_args.mm_projector_type == "qformer" else False
-    )
     train_dataset = dataset_cls(
         tokenizer=tokenizer,
         data_path=data_args.data_path,
@@ -566,7 +560,6 @@ def make_supervised_data_module(
             image_aspect_ratio=data_args.image_aspect_ratio,
             use_im_start_end=getattr(data_args, "mm_use_im_start_end", False),
             image_processor=getattr(data_args, "image_processor", None),
-            use_qformer_query_as_image_token=use_qformer_query_as_image_token,
         ),
     )
     eval_dataset = {}
@@ -586,7 +579,6 @@ def make_supervised_data_module(
                 image_aspect_ratio=data_args.image_aspect_ratio,
                 use_im_start_end=getattr(data_args, "mm_use_im_start_end", False),
                 image_processor=getattr(data_args, "image_processor", None),
-                use_qformer_query_as_image_token=use_qformer_query_as_image_token,
             ),
             is_val=True,
         )
@@ -612,7 +604,6 @@ def make_supervised_data_module(
                 image_aspect_ratio=data_args.image_aspect_ratio,
                 use_im_start_end=getattr(data_args, "mm_use_im_start_end", False),
                 image_processor=getattr(data_args, "image_processor", None),
-                use_qformer_query_as_image_token=use_qformer_query_as_image_token,
             ),
             is_val=True,
         )
@@ -808,12 +799,6 @@ def train():
             model.requires_grad_(False)
             for p in model.model.mm_projector.parameters():
                 p.requires_grad = True
-            if model_args.mm_projector_type == "qformer":
-                for p in model.model.ln_vision.parameters():
-                    p.requires_grad = True
-                for p in model.model.Qformer.parameters():
-                    p.requires_grad = True
-                model.model.query_tokens.requires_grad = True
 
         model.config.freeze_mm_mlp_adapter = training_args.freeze_mm_mlp_adapter
         if training_args.freeze_mm_mlp_adapter:
