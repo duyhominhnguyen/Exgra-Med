@@ -2,7 +2,6 @@
 export WORKDIR=$(pwd)/exgra_med
 # Add the working directory to the PYTHONPATH
 export PYTHONPATH="$WORKDIR:$PYTHONPATH"
-
 lr=2e-5
 version=_exgra_med_dci_100_scale_${lr}
 model_name_or_path=./models/checkpoint_llava_med_instruct_60k_inline_mention_version_1-5${version}

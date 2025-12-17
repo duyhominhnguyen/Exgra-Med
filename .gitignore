@@ -178,3 +178,4 @@ pretrained
 llava.egg-info
 
 .DS_Store
+scripts/srun_data.sh
