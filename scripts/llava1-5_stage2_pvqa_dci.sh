@@ -10,7 +10,7 @@ run_name=pvqa-100${version}
 
 
 torchrun --nnodes=1 --nproc_per_node=2 --master_port=25056 \
-    llava/train/train_mem.py \
+    exgra_med/llava/train/train_mem.py \
     --model_name_or_path=${model_name_or_path} \
     --data_path ./pvqa/train_w_options_new.json \
     --image_folder ./pvqa/images \

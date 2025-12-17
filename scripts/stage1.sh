@@ -1,29 +1,19 @@
+#!/bin/bash
+export WORKDIR=$(pwd)/exgra_med
+# Add the working directory to the PYTHONPATH
+export PYTHONPATH="$WORKDIR:$PYTHONPATH"
+
 if [ -f .env ]; then
     export $(grep -v '^#' .env | xargs)
 fi
 
 EXP=stage1
-DATE=_40_scale
+DATE=_100_scale
 # contrastive loss type: infonce, siglip, directOT (none contrastive loss type)
 # vision_tower: openai/clip-vit-large-patch14 microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
-srun -p A100-IML,A100-80GB -t 1-10:59:59 --ntasks 1 \
-        --gpus-per-task 2 \
-        --cpus-per-gpu=6 \
-        --mem-per-cpu 40G\
-        --container-image=${ROOTDIR}/Research/Nghiem_LLaVA-Med/exgra_med_finetune.sqsh \
-        --container-workdir="`pwd`" \
-        --container-mounts=${WORKDIR}:/root/LLaVA-Med,${ROOTDIR}:${ROOTDIR},/ds:/ds:ro,"`pwd`":"`pwd`" \
-        --export="NCCL_IB_DISABLE=1" \
-        --export="OMP_NUM_THREADS=10" \
-        --export="LOGLEVEL=INFO" \
-        --export="LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH" \
-        --export="FI_PROVIDER='efa'" \
-        --export="CUDA_LAUNCH_BLOCKING=1" \
-        --export="CUDA_VISIBLE_DEVICES=0,1" \
-        --export="WANDB_API_KEY=${WANDB_API_KEY}" \
-        torchrun --nnodes=1 --nproc_per_node=2 --master_port=25003 llava/train/train_mem_pre.py \
+torchrun --nnodes=1 --nproc_per_node=4 --master_port=25003 exgra_med/llava/train/train_mem_pre.py \
         --model_name_or_path ${DATADIR}/weights/LLaVA-7b-v0 \
-        --data_path ${DATADIR}/data/alignment/llava_med_alignment_40_2_conversations.json \
+        --data_path ${DATADIR}/data/alignment/llava_med_alignment_100_2_conversations.json \
         --image_folder ${DATADIR}/data/images \
         --vision_tower openai/clip-vit-large-patch14 \
         --mm_projector_type mlp2x_gelu \

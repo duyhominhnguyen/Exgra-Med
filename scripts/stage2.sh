@@ -1,31 +1,21 @@
+#!/bin/bash
+export WORKDIR=$(pwd)/exgra_med
+# Add the working directory to the PYTHONPATH
+export PYTHONPATH="$WORKDIR:$PYTHONPATH"
+
 if [ -f .env ]; then
     export $(grep -v '^#' .env | xargs)
 fi
 
 EXP=stage2
-DATE=_1e0_multi_graph_40_scale
+DATE=_1e0_multi_graph_100_scale
 # contrastive loss type: infonce, siglip, directOT (none contrastive loss type)
 # vision_tower: openai/clip-vit-large-patch14 microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
-STAGE1_CKPT=./models/checkpoint_llava-med-7b-pretrain_version_1-5_40_scale
+STAGE1_CKPT=./models/checkpoint_llava-med-7b-pretrain_version_1-5_100_scale
 
-srun -p A100-80GB,A100-IML -t 1-10:59:59 --ntasks 1 \
-        --gpus-per-task 4 \
-        --cpus-per-gpu=6 \
-        --mem-per-cpu 40G \
-        --container-image=${ROOTDIR}/Research/Nghiem_LLaVA-Med/exgra_med_finetune.sqsh \
-        --container-workdir="`pwd`" \
-        --container-mounts=${WORKDIR}:/root/LLaVA-Med,${ROOTDIR}:${ROOTDIR},/ds:/ds:ro,"`pwd`":"`pwd`" \
-        --export="NCCL_IB_DISABLE=1" \
-        --export="OMP_NUM_THREADS=10" \
-        --export="LOGLEVEL=INFO" \
-        --export="LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH" \
-        --export="FI_PROVIDER='efa'" \
-        --export="CUDA_LAUNCH_BLOCKING=1" \
-        --export="CUDA_VISIBLE_DEVICES=0,1,2,3" \
-        --export="WANDB_API_KEY=${WANDB_API_KEY}" \
-        torchrun --nnodes=1 --nproc_per_node=4 --master_port=25010 llava/train/train_mem_pre.py \
+torchrun --nnodes=1 --nproc_per_node=4 --master_port=25010 exgra_med/llava/train/train_mem_pre.py \
         --model_name_or_path ${STAGE1_CKPT} \
-        --data_path ${DATADIR}/data/instruct/llava_med_instruct_40_inline_mention_2_conversations.json \
+        --data_path ${DATADIR}/data/instruct/llava_med_instruct_100_inline_mention_2_conversations.json \
         --image_folder ${DATADIR}/data/images \
         --vision_tower openai/clip-vit-large-patch14 \
         --mm_projector_type mlp2x_gelu \
@@ -39,7 +29,7 @@ srun -p A100-80GB,A100-IML -t 1-10:59:59 --ntasks 1 \
         --fp16 True \
         --output_dir ${WORKDIR}/models/checkpoint_llava_med_instruct_60k_inline_mention_version_1-5${DATE} \
         --num_train_epochs 3 \
-        --per_device_train_batch_size 8 \
+        --per_device_train_batch_size 16 \
         --per_device_eval_batch_size 4 \
         --gradient_accumulation_steps 1 \
         --evaluation_strategy "no" \
