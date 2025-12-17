@@ -145,10 +145,10 @@ Basic Dependencies:
 **Note**: Please check your CUDA driver to install a proper version of PyTorch. For instance, we provide a guideline for installation for CUDA 11:
 
 ```bash
-conda create -n exgra-med python=3.10
+conda create -n exgra-med python=3.10.12
 conda activate exgra-med
 pip install --upgrade pip
-pip install torch==2.0.0+cu117 torchvision==0.15.1+cu117 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cu117
+pip install torch==2.1.2+cu118 torchvision==0.16.2+cu118 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu118
 pip install openai==0.27.8
 pip install git+https://github.com/huggingface/transformers@cae78c46
 pip install -e .
@@ -159,9 +159,19 @@ pip install --upgrade pillow
 Also, based on your CUDA driver, please check the proper version of [Flash Attention 2](https://github.com/Dao-AILab/flash-attention) at this [link](https://github.com/Dao-AILab/flash-attention/releases), and then install `flash-attn` package:
 
 ```bash
-pip install flash-attn --no-build-isolation
+pip install flash-attn==2.5.7 --no-build-isolation
 ```
 
+Before running the pre-training stages, please install the following graph-related packages.
+
+```bash
+pip install pyg-lib==0.3.1 \ torch-scatter==2.1.2+pt21cu118 \ torch-sparse==0.6.18+pt21cu118 \ torch-cluster==1.6.3+pt21cu118 \ torch-spline-conv==1.2.2+pt21cu118 \ -f https://data.pyg.org/whl/torch-2.1.0+cu118.html
+
+pip install torch-geometric==2.4.0
+pip install --no-build-isolation git+https://github.com/mrolinek/lpmp.git@9fd6211c77a14beeb68cbc3a98e1b318e614c493 
+# If you meet errors during LPMP installation, verify your CMake setup and consider reinstalling it.
+pip install pycocotools
+```
 -----
 ## Project Structure
 * **`assets/`**: Contains various assets used by the project (e.g., images, supplementary files).
