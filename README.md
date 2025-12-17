@@ -62,6 +62,8 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 - [🛠️ Installation](#installation)
 - [📂 Project Structure](#project-structure)
 - [📄 Dataset Configuration Files](#-dataset-configuration-files)
+- [🖇️ Extended Instructions Generation](#-extended-instructions-generation)
+- [Pre-Training on Two Stages](#-pre-training-on-two-stages)
 - [🔧 Fine-tuning on VQA Tasks](#-fine-tuning-on-vqa-tasks)
 - [📈 Evaluation](#-evaluation)
   - [1. Medical VQA Evaluation](#1-medical-vqa-evaluation)
@@ -173,7 +175,7 @@ pip install --no-build-isolation git+https://github.com/mrolinek/lpmp.git@9fd621
 pip install pycocotools
 ```
 -----
-## Project Structure
+## 📂 Project Structure
 * **`assets/`**: Contains various assets used by the project (e.g., images, supplementary files).
 * **`scripts/`**: Houses utility bash scripts.
 * **`exgra_med/`**: The main source code directory for the `exgra_med` package/application.
