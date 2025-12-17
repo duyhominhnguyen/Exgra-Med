@@ -7,6 +7,7 @@ import torch
 import pathlib
 import logging
 import math
+
 # import h5py
 import numpy as np
 from PIL import Image
@@ -34,7 +35,7 @@ from llava.train.train_original_pre import (
     DEFAULT_IMAGE_PATCH_TOKEN,
     DEFAULT_IM_START_TOKEN,
     DEFAULT_IM_END_TOKEN,
-    DEFAULT_IMAGE_TOKEN
+    DEFAULT_IMAGE_TOKEN,
 )
 
 from llava.model.llava_pre import LlavaLlamaForCausalLM
@@ -69,10 +70,11 @@ class LVLMModelArguments:
     contrastive: bool = field(default=False)
     alpha: float = field(default=1.0)
     after_de: bool = field(default=False)
-   
+
     ## Multi-Graph
     multi_graph: bool = field(default=False)
     graph_num_features: int = field(default=4096)
+
 
 def preprocess_multimodal_combine_long(
     sources: Sequence[str],
@@ -81,7 +83,7 @@ def preprocess_multimodal_combine_long(
     cur_token_len: int,
 ) -> Dict:
     """
-    This function is used to preprocess sentences for both 
+    This function is used to preprocess sentences for both
     original and extended version of questions and answers.
     """
     is_multimodal = multimodal_cfg["is_multimodal"]
@@ -122,8 +124,12 @@ def preprocess_multimodal_combine_long(
 
     return sources, sources_long
 
+
 def merge_sentences_preprocess(
-    sources: Sequence[str], sources_long: Sequence[str], tokenizer: transformers.PreTrainedTokenizer, sep: str = ". "
+    sources: Sequence[str],
+    sources_long: Sequence[str],
+    tokenizer: transformers.PreTrainedTokenizer,
+    sep: str = ". ",
 ) -> Dict:
     """
     Given a list of sources, each is a conversation list. This transform:
@@ -170,8 +176,10 @@ def merge_sentences_preprocess(
         merge_sentence_long = sep.join(list_merge_sentences_long)
         list_source_sentences_long.append(merge_sentence_long)
 
-    merge_sentence_id_long = _tokenize_fn(list_source_sentences_long, tokenizer)["input_ids"]
-    
+    merge_sentence_id_long = _tokenize_fn(list_source_sentences_long, tokenizer)[
+        "input_ids"
+    ]
+
     ########## Prepare the answers for autoregressive ##########
     conversations = []
     for source in sources:
@@ -179,7 +187,7 @@ def merge_sentences_preprocess(
 
         conversation = _add_speaker_and_signal(header, source)
         conversations.append(conversation)
-    
+
     # tokenize conversations
     conversations_tokenized = _tokenize_fn(conversations, tokenizer)
     input_ids = conversations_tokenized["input_ids"]
@@ -193,8 +201,12 @@ def merge_sentences_preprocess(
         _mask_targets(target, tokenized_lens, speakers)
 
     return dict(
-        input_ids=input_ids, labels=targets, merge_sentence_id=merge_sentence_id, merge_sentence_id_long=merge_sentence_id_long
+        input_ids=input_ids,
+        labels=targets,
+        merge_sentence_id=merge_sentence_id,
+        merge_sentence_id_long=merge_sentence_id_long,
     )
+
 
 class LVLMLazySupervisedDataset(LazySupervisedDataset):
     def __init__(
@@ -203,12 +215,14 @@ class LVLMLazySupervisedDataset(LazySupervisedDataset):
         tokenizer: transformers.PreTrainedTokenizer,
         multimodal_cfg: dict,
     ):
-        super().__init__(data_path=data_path, tokenizer=tokenizer, multimodal_cfg=multimodal_cfg)
+        super().__init__(
+            data_path=data_path, tokenizer=tokenizer, multimodal_cfg=multimodal_cfg
+        )
         if ".h5" in self.multimodal_cfg["image_folder"]:
-            self.h5f = h5py.File(self.multimodal_cfg["image_folder"], 'r')
+            self.h5f = h5py.File(self.multimodal_cfg["image_folder"], "r")
 
     def __del__(self):
-        if hasattr(self, 'h5f'):
+        if hasattr(self, "h5f"):
             self.h5f.close()
         # self._shutdown_workers()
 
@@ -290,7 +304,9 @@ class LVLMLazySupervisedDataset(LazySupervisedDataset):
                 sources_long = copy.deepcopy([e["conversatons_long"] for e in sources])
                 sources = copy.deepcopy([e["conversatons"] for e in sources])
 
-            sources, sources_long = preprocess_multimodal_combine_long(sources, sources_long, self.multimodal_cfg, cur_token_len)
+            sources, sources_long = preprocess_multimodal_combine_long(
+                sources, sources_long, self.multimodal_cfg, cur_token_len
+            )
         else:
             try:
                 sources_long = copy.deepcopy([e["conversations_long"] for e in sources])
@@ -300,9 +316,12 @@ class LVLMLazySupervisedDataset(LazySupervisedDataset):
                 sources = copy.deepcopy([e["conversatons"] for e in sources])
 
         data_dict = merge_sentences_preprocess(
-            sources=sources, sources_long=sources_long, tokenizer=self.tokenizer, sep=". "
+            sources=sources,
+            sources_long=sources_long,
+            tokenizer=self.tokenizer,
+            sep=". ",
         )
- 
+
         if isinstance(i, int):
             data_dict = dict(
                 input_ids=data_dict["input_ids"][0],
@@ -329,7 +348,12 @@ class LVLMDataCollatorForSupervisedDataset(DataCollatorForSupervisedDataset):
     def __call__(self, instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
         input_ids, labels, merge_sentence_id, merge_sentence_id_long = tuple(
             [instance[key] for instance in instances]
-            for key in ("input_ids", "labels", "merge_sentence_id", "merge_sentence_id_long")
+            for key in (
+                "input_ids",
+                "labels",
+                "merge_sentence_id",
+                "merge_sentence_id_long",
+            )
         )
         input_ids = torch.nn.utils.rnn.pad_sequence(
             input_ids, batch_first=True, padding_value=self.tokenizer.pad_token_id
@@ -354,7 +378,9 @@ class LVLMDataCollatorForSupervisedDataset(DataCollatorForSupervisedDataset):
             merge_sentence_id_long=merge_sentence_id_long,
             attention_mask=input_ids.ne(self.tokenizer.pad_token_id),
             attention_mask_F=merge_sentence_id.ne(self.tokenizer.pad_token_id),
-            attention_mask_F_long=merge_sentence_id_long.ne(self.tokenizer.pad_token_id),
+            attention_mask_F_long=merge_sentence_id_long.ne(
+                self.tokenizer.pad_token_id
+            ),
         )
 
         if "image" in instances[0]:
@@ -383,8 +409,8 @@ def make_supervised_data_module(
             image_folder=data_args.image_folder,
             image_aspect_ratio=data_args.image_aspect_ratio,
             use_im_start_end=getattr(data_args, "mm_use_im_start_end", False),
-            image_processor=getattr(data_args, "image_processor", None)
-        )
+            image_processor=getattr(data_args, "image_processor", None),
+        ),
     )
     data_collator = LVLMDataCollatorForSupervisedDataset(tokenizer=tokenizer)
     return dict(
@@ -421,7 +447,6 @@ def train():
     if model_args.freeze_backbone:
         model.model.requires_grad_(False)
 
-
     tokenizer = transformers.AutoTokenizer.from_pretrained(
         model_args.model_name_or_path,
         cache_dir=training_args.cache_dir,
@@ -453,7 +478,7 @@ def train():
 
     ## TODO: increase gradient_accumulation_steps N times compare to decrease number of used GPUs
     model_args.gradient_accumulation_steps = training_args.gradient_accumulation_steps
-   
+
     if model_args.vision_tower is not None:
         model_vision_dict = model.model.initialize_vision_modules(
             model_args=model_args,
@@ -466,7 +491,7 @@ def train():
             dtype = torch.float16
         if training_args.bf16:
             dtype = torch.bfloat16
-      
+
         model.model.vision_tower[0].to(dtype=dtype, device=training_args.device)
         vision_config = model_vision_dict["vision_config"]
 
@@ -483,11 +508,10 @@ def train():
             model.requires_grad_(False)
             for p in model.model.mm_projector.parameters():
                 p.requires_grad = True
-            
+
             if model_args.contrastive and model_args.multi_graph:
                 for p in model.model.message_pass_node_features.parameters():
                     p.requires_grad = True
-                    
 
         model.config.freeze_mm_mlp_adapter = training_args.freeze_mm_mlp_adapter
         if training_args.freeze_mm_mlp_adapter:

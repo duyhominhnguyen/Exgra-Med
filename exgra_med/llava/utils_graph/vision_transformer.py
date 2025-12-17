@@ -12,8 +12,6 @@ from functools import partial
 from typing import Optional, Tuple, Type
 
 
-
-
 class MLPBlock(nn.Module):
     def __init__(
         self,
@@ -28,6 +26,7 @@ class MLPBlock(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.lin2(self.act(self.lin1(x)))
+
 
 class LayerNorm2d(nn.Module):
     def __init__(self, num_channels: int, eps: float = 1e-6) -> None:
@@ -44,129 +43,119 @@ class LayerNorm2d(nn.Module):
         return x
 
 
-    
-def remove_redundant_checkpoint(path) :
-    
-    weight = torch.load(path, map_location ='cpu')
-    for key in list(weight.keys()):
-        if ('image_encoder.blocks.'  not in key) and  ('image_encoder.patch_embed.'  not in key):
-            del weight[key]
-        else :
-            weight[key.replace('image_encoder.', '')] = weight[key]
-            del weight[key]
-    return weight
+def remove_redundant_checkpoint(path):
 
-def remove_redundant_checkpoint_v2(path) :   
-    weight = torch.load(path, map_location ='cpu')
+    weight = torch.load(path, map_location="cpu")
     for key in list(weight.keys()):
-        if 'pos_embed' in key :
+        if ("image_encoder.blocks." not in key) and (
+            "image_encoder.patch_embed." not in key
+        ):
             del weight[key]
         else:
-            weight[key.replace('image_encoder.', '')] = weight[key]
+            weight[key.replace("image_encoder.", "")] = weight[key]
             del weight[key]
     return weight
 
-    
+
+def remove_redundant_checkpoint_v2(path):
+    weight = torch.load(path, map_location="cpu")
+    for key in list(weight.keys()):
+        if "pos_embed" in key:
+            del weight[key]
+        else:
+            weight[key.replace("image_encoder.", "")] = weight[key]
+            del weight[key]
+    return weight
+
+
 def vit_encoder_h():
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
 
+    encoder_embed_dim = 1280
+    encoder_depth = 32
+    encoder_num_heads = 16
+    encoder_global_attn_indexes = [7, 15, 23, 31]
 
-    encoder_embed_dim=1280
-    encoder_depth=32
-    encoder_num_heads=16
-    encoder_global_attn_indexes=[7, 15, 23, 31]
-
-    image_encoder=ImageEncoderViT(
-            depth=encoder_depth,
-            embed_dim=encoder_embed_dim,
-            img_size=image_size,
-            mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
-            num_heads=encoder_num_heads,
-            patch_size=vit_patch_size,
-            qkv_bias=True,
-            use_rel_pos=True,
-            use_abs_pos = False,
-            global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
-            out_chans=prompt_embed_dim,
-        )
+    image_encoder = ImageEncoderViT(
+        depth=encoder_depth,
+        embed_dim=encoder_embed_dim,
+        img_size=image_size,
+        mlp_ratio=4,
+        norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+        num_heads=encoder_num_heads,
+        patch_size=vit_patch_size,
+        qkv_bias=True,
+        use_rel_pos=True,
+        use_abs_pos=False,
+        global_attn_indexes=encoder_global_attn_indexes,
+        window_size=14,
+        out_chans=prompt_embed_dim,
+    )
     return image_encoder, 256
 
-    
 
-    
 def vit_encoder_l():
-    
+
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
 
+    encoder_embed_dim = 1024
+    encoder_depth = 24
+    encoder_num_heads = 16
+    encoder_global_attn_indexes = [5, 11, 17, 23]
 
-    encoder_embed_dim=1024
-    encoder_depth=24
-    encoder_num_heads=16
-    encoder_global_attn_indexes=[5, 11, 17, 23]
-
-
-    image_encoder=ImageEncoderViT(
-            depth=encoder_depth,
-            embed_dim=encoder_embed_dim,
-            img_size=image_size,
-            mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
-            num_heads=encoder_num_heads,
-            patch_size=vit_patch_size,
-            qkv_bias=True,
-            use_rel_pos=True,
-            use_abs_pos = False,
-            
-            global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
-            out_chans=prompt_embed_dim,
-        )
-    return image_encoder, 256    
-    
-
-
-    
-    
-    
-def vit_encoder_b():
-    
-    prompt_embed_dim = 256
-    image_size = 1024
-    vit_patch_size = 16
-    image_embedding_size = image_size // vit_patch_size
-
-
-    encoder_embed_dim=768
-    encoder_depth=12
-    encoder_num_heads=12
-    encoder_global_attn_indexes=[2, 5, 8, 11]
-
-    image_encoder=ImageEncoderViT(
-            depth=encoder_depth,
-            embed_dim=encoder_embed_dim,
-            img_size=image_size,
-            mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
-            num_heads=encoder_num_heads,
-            patch_size=vit_patch_size,
-            qkv_bias=True,
-            use_rel_pos=True,
-            use_abs_pos = False,
-            global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
-            out_chans=prompt_embed_dim,
-        )
-#     return image_encoder, 768
+    image_encoder = ImageEncoderViT(
+        depth=encoder_depth,
+        embed_dim=encoder_embed_dim,
+        img_size=image_size,
+        mlp_ratio=4,
+        norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+        num_heads=encoder_num_heads,
+        patch_size=vit_patch_size,
+        qkv_bias=True,
+        use_rel_pos=True,
+        use_abs_pos=False,
+        global_attn_indexes=encoder_global_attn_indexes,
+        window_size=14,
+        out_chans=prompt_embed_dim,
+    )
     return image_encoder, 256
 
+
+def vit_encoder_b():
+
+    prompt_embed_dim = 256
+    image_size = 1024
+    vit_patch_size = 16
+    image_embedding_size = image_size // vit_patch_size
+
+    encoder_embed_dim = 768
+    encoder_depth = 12
+    encoder_num_heads = 12
+    encoder_global_attn_indexes = [2, 5, 8, 11]
+
+    image_encoder = ImageEncoderViT(
+        depth=encoder_depth,
+        embed_dim=encoder_embed_dim,
+        img_size=image_size,
+        mlp_ratio=4,
+        norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+        num_heads=encoder_num_heads,
+        patch_size=vit_patch_size,
+        qkv_bias=True,
+        use_rel_pos=True,
+        use_abs_pos=False,
+        global_attn_indexes=encoder_global_attn_indexes,
+        window_size=14,
+        out_chans=prompt_embed_dim,
+    )
+    #     return image_encoder, 768
+    return image_encoder, 256
 
 
 # This class and its supporting functions below lightly adapted from the ViTDet backbone available at: https://github.com/facebookresearch/detectron2/blob/main/detectron2/modeling/backbone/vit.py # noqa
@@ -223,7 +212,9 @@ class ImageEncoderViT(nn.Module):
         if use_abs_pos:
             # Initialize absolute positional embedding with pretrain image size.
             self.pos_embed = nn.Parameter(
-                torch.zeros(1, img_size // patch_size, img_size // patch_size, embed_dim)
+                torch.zeros(
+                    1, img_size // patch_size, img_size // patch_size, embed_dim
+                )
             )
 
         self.blocks = nn.ModuleList()
@@ -241,8 +232,7 @@ class ImageEncoderViT(nn.Module):
                 input_size=(img_size // patch_size, img_size // patch_size),
             )
             self.blocks.append(block)
-            
-            
+
         self.neck = nn.Sequential(
             nn.Conv2d(
                 embed_dim,
@@ -261,10 +251,9 @@ class ImageEncoderViT(nn.Module):
             LayerNorm2d(out_chans),
         )
 
-            
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-            
-#         if self.include_neck :
+
+    #         if self.include_neck :
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.patch_embed(x)
@@ -273,15 +262,15 @@ class ImageEncoderViT(nn.Module):
 
         for blk in self.blocks:
             x = blk(x)
-        
-#         if self.include_neck :
-#             x = self.neck(x.permute(0, 3, 1, 2))
-#         else :
-#             x = x.permute(0, 3, 1, 2)
-            
+
+        #         if self.include_neck :
+        #             x = self.neck(x.permute(0, 3, 1, 2))
+        #         else :
+        #             x = x.permute(0, 3, 1, 2)
+
         x = self.neck(x.permute(0, 3, 1, 2))
-#         x = x.permute(0, 3, 1, 2)
-    
+        #         x = x.permute(0, 3, 1, 2)
+
         x_avg = self.avgpool(x)
         x_avg = torch.flatten(x_avg, 1)
         x = x.flatten(2, 3).permute(0, 2, 1)
@@ -331,7 +320,9 @@ class Block(nn.Module):
         )
 
         self.norm2 = norm_layer(dim)
-        self.mlp = MLPBlock(embedding_dim=dim, mlp_dim=int(dim * mlp_ratio), act=act_layer)
+        self.mlp = MLPBlock(
+            embedding_dim=dim, mlp_dim=int(dim * mlp_ratio), act=act_layer
+        )
 
         self.window_size = window_size
 
@@ -396,23 +387,34 @@ class Attention(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, H, W, _ = x.shape
         # qkv with shape (3, B, nHead, H * W, C)
-        qkv = self.qkv(x).reshape(B, H * W, 3, self.num_heads, -1).permute(2, 0, 3, 1, 4)
+        qkv = (
+            self.qkv(x).reshape(B, H * W, 3, self.num_heads, -1).permute(2, 0, 3, 1, 4)
+        )
         # q, k, v with shape (B * nHead, H * W, C)
         q, k, v = qkv.reshape(3, B * self.num_heads, H * W, -1).unbind(0)
 
         attn = (q * self.scale) @ k.transpose(-2, -1)
 
         if self.use_rel_pos:
-            attn = add_decomposed_rel_pos(attn, q, self.rel_pos_h, self.rel_pos_w, (H, W), (H, W))
+            attn = add_decomposed_rel_pos(
+                attn, q, self.rel_pos_h, self.rel_pos_w, (H, W), (H, W)
+            )
 
         attn = attn.softmax(dim=-1)
-        x = (attn @ v).view(B, self.num_heads, H, W, -1).permute(0, 2, 3, 1, 4).reshape(B, H, W, -1)
+        x = (
+            (attn @ v)
+            .view(B, self.num_heads, H, W, -1)
+            .permute(0, 2, 3, 1, 4)
+            .reshape(B, H, W, -1)
+        )
         x = self.proj(x)
 
         return x
 
 
-def window_partition(x: torch.Tensor, window_size: int) -> Tuple[torch.Tensor, Tuple[int, int]]:
+def window_partition(
+    x: torch.Tensor, window_size: int
+) -> Tuple[torch.Tensor, Tuple[int, int]]:
     """
     Partition into non-overlapping windows with padding if needed.
     Args:
@@ -432,12 +434,17 @@ def window_partition(x: torch.Tensor, window_size: int) -> Tuple[torch.Tensor, T
     Hp, Wp = H + pad_h, W + pad_w
 
     x = x.view(B, Hp // window_size, window_size, Wp // window_size, window_size, C)
-    windows = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size, window_size, C)
+    windows = (
+        x.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size, window_size, C)
+    )
     return windows, (Hp, Wp)
 
 
 def window_unpartition(
-    windows: torch.Tensor, window_size: int, pad_hw: Tuple[int, int], hw: Tuple[int, int]
+    windows: torch.Tensor,
+    window_size: int,
+    pad_hw: Tuple[int, int],
+    hw: Tuple[int, int],
 ) -> torch.Tensor:
     """
     Window unpartition into original sequences and removing padding.
@@ -453,7 +460,9 @@ def window_unpartition(
     Hp, Wp = pad_hw
     H, W = hw
     B = windows.shape[0] // (Hp * Wp // window_size // window_size)
-    x = windows.view(B, Hp // window_size, Wp // window_size, window_size, window_size, -1)
+    x = windows.view(
+        B, Hp // window_size, Wp // window_size, window_size, window_size, -1
+    )
     x = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(B, Hp, Wp, -1)
 
     if Hp > H or Wp > W:
@@ -462,17 +471,17 @@ def window_unpartition(
 
 
 def get_rel_pos(q_size: int, k_size: int, rel_pos: torch.Tensor) -> torch.Tensor:
-#     """
-#     Get relative positional embeddings according to the relative positions of
-#         query and key sizes.
-#     Args:
-#         q_size (int): size of query q.
-#         k_size (int): size of key k.
-#         rel_pos (Tensor): relative position embeddings (L, C).
+    #     """
+    #     Get relative positional embeddings according to the relative positions of
+    #         query and key sizes.
+    #     Args:
+    #         q_size (int): size of query q.
+    #         k_size (int): size of key k.
+    #         rel_pos (Tensor): relative position embeddings (L, C).
 
-#     Returns:
-#         Extracted positional embeddings according to relative positions.
-#     """
+    #     Returns:
+    #         Extracted positional embeddings according to relative positions.
+    #     """
     max_rel_dist = int(2 * max(q_size, k_size) - 1)
     # Interpolate rel pos if needed.
     if rel_pos.shape[0] != max_rel_dist:
@@ -527,7 +536,9 @@ def add_decomposed_rel_pos(
     rel_w = torch.einsum("bhwc,wkc->bhwk", r_q, Rw)
 
     attn = (
-        attn.view(B, q_h, q_w, k_h, k_w) + rel_h[:, :, :, :, None] + rel_w[:, :, :, None, :]
+        attn.view(B, q_h, q_w, k_h, k_w)
+        + rel_h[:, :, :, :, None]
+        + rel_w[:, :, :, None, :]
     ).view(B, q_h * q_w, k_h * k_w)
 
     return attn

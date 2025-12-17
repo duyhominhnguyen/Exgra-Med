@@ -138,15 +138,15 @@ def main_worker(gpu, args):
 
     if "convnext" in args.arch:
         import convnext
+
         backbone, embedding = convnext.__dict__[args.arch](
             drop_path_rate=0.1,
             layer_scale_init_value=0.0,
         )
     elif "resnet" in args.arch:
         import resnet
-        backbone, embedding = resnet.__dict__[args.arch](
-            zero_init_residual=True
-        )
+
+        backbone, embedding = resnet.__dict__[args.arch](zero_init_residual=True)
 
     state_dict = torch.load(args.pretrained, map_location="cpu")
     if "model" in state_dict:

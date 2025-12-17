@@ -15,19 +15,16 @@ from loguru import logger
 from torch.utils.data import Dataset
 import torchvision.datasets as datasets
 
-from .transforms import (
-    MultiCropTrainDataTransform, 
-    MultiCropValDataTransform
-)
+from .transforms import MultiCropTrainDataTransform, MultiCropValDataTransform
 
 # from .transforms_1 import (
-#     MultiCropTrainDataTransform_1, 
+#     MultiCropTrainDataTransform_1,
 #     MultiCropValDataTransform_1
 # )
 
 
 IMAGENET_NUMPY_PATH = "/private/home/abardes/datasets/imagenet1k/"
-IMAGENET_PATH = '/home/user/graph_matching/dataset/' 
+IMAGENET_PATH = "/home/user/graph_matching/dataset/"
 
 
 class ImageNetNumpyDataset(Dataset):
@@ -75,7 +72,6 @@ def build_loader(args, is_train=True):
     return loader, sampler
 
 
-
 def build_dataset(args, is_train=True):
     transform = build_transform(args, is_train=is_train)
 
@@ -95,12 +91,10 @@ def build_dataset(args, is_train=True):
             prefix = "train" if is_train else "val"
             path = os.path.join(root, "train")
             dataset = datasets.ImageFolder(path, transform)
-#             print(f'Length of dataset : {len(dataset)}')
-            logger.info(f'Length of dataset : {len(dataset)}')
+            #             print(f'Length of dataset : {len(dataset)}')
+            logger.info(f"Length of dataset : {len(dataset)}")
 
     return dataset
-
-
 
 
 def build_transform(args, is_train=True):
@@ -120,10 +114,7 @@ def build_transform(args, is_train=True):
     return transform
 
 
-
-
-
-# ========================================================================================================= FOR VIT 
+# ========================================================================================================= FOR VIT
 
 
 def build_loader_1(args, is_train=True):
@@ -142,7 +133,6 @@ def build_loader_1(args, is_train=True):
         num_workers=args.num_workers,
     )
     return loader, sampler
-
 
 
 def build_dataset_1(args, is_train=True):
@@ -164,15 +154,14 @@ def build_dataset_1(args, is_train=True):
             prefix = "train" if is_train else "val"
             path = os.path.join(root, "train")
             dataset = datasets.ImageFolder(path, transform)
-#             print(f'Length of dataset : {len(dataset)}')
-            logger.info(f'Length of dataset : {len(dataset)}')
+            #             print(f'Length of dataset : {len(dataset)}')
+            logger.info(f"Length of dataset : {len(dataset)}")
 
     return dataset
 
 
-
 def build_transform_1(args, is_train=True):
-    
+
     transform_args = {
         "size_crops": args.size_crops,
         "num_crops": args.num_crops,
@@ -187,5 +176,3 @@ def build_transform_1(args, is_train=True):
         transform = MultiCropValDataTransform_1(**transform_args)
 
     return transform
-
-

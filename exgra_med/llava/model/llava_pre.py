@@ -33,17 +33,20 @@ from torch_geometric.nn import SplineConv, EGConv, GraphConv, GATConv, GCNConv
 
 from lpmp_py import GraphMatchingModule
 from llava.model.dense_connector import dense_connector
+
 # from torch_sinkhorn.problem import Epsilon, LinearProblem
 # from torch_sinkhorn.sinkhorn import Sinkhorn
 import logging
 from llava.model.llava_original_pre import LlavaLlamaModel as LlavaLlamaModelBase
-from llava.model.llava_original_pre import LlavaLlamaForCausalLM as LlavaLlamaForCausalLMBase
+from llava.model.llava_original_pre import (
+    LlavaLlamaForCausalLM as LlavaLlamaForCausalLMBase,
+)
 
 from llava.utils_graph import utils
 from llava.utils_graph.datasets import build_loader
 from llava.utils_graph.distributed import init_distributed_mode
 from llava.utils_graph.build_graph import (
-    build_graphs_main_1, 
+    build_graphs_main_1,
     calculate_edge_attr_1,
 )
 from llava.utils_graph import config as cfg
@@ -51,8 +54,8 @@ from llava.utils_graph import config as cfg
 from llava.utils_graph.utils import (
     restart_from_checkpoint,
     fix_random_seeds,
-    AverageMeter,  
-    lexico_iter
+    AverageMeter,
+    lexico_iter,
 )
 
 DEFAULT_IMAGE_TOKEN = "<image>"
@@ -65,6 +68,7 @@ os.makedirs(LOG_DIR, exist_ok=True)
 
 logger = logging.getLogger("LVLM-Med")
 
+
 class IdentityMap(nn.Module):
     def __init__(self):
         super().__init__()
@@ -75,6 +79,7 @@ class IdentityMap(nn.Module):
     @property
     def config(self):
         return {"mm_projector_type": "identity"}
+
 
 def build_vision_projector(config, delay_load=False, **kwargs):
     projector_type = getattr(config, "mm_projector_type", "linear")
@@ -102,6 +107,7 @@ def build_vision_projector(config, delay_load=False, **kwargs):
 
     raise ValueError(f"Unknown projector type: {projector_type}")
 
+
 def Sinkhorn(K, u, v):
     r = torch.ones_like(u)
     c = torch.ones_like(v)
@@ -118,6 +124,7 @@ def Sinkhorn(K, u, v):
 
     return T
 
+
 def distributed_sinkhorn(out, vocab_dist):
     """
     Optimal Transport for VLAP
@@ -133,6 +140,7 @@ def distributed_sinkhorn(out, vocab_dist):
 
     Q *= B  # the colomns must sum to 1 so that Q is an assignment Q: K x B
     return Q.t()  # B x K or B*Ns x K
+
 
 def average_similarity(
     align_image_features: torch.Tensor,
@@ -206,6 +214,7 @@ def optimal_transport_similarity(
             matrixSimi[i, j] = (sim_op) * torch.exp(temperature)
     return matrixSimi
 
+
 def compute_loss(
     contrastive_loss_type: str,
     simi_type: str,
@@ -237,23 +246,29 @@ def compute_loss(
 
     return lossAlign
 
+
 class GDPModel1(torch.nn.Module):
     """
     Applying GNN on built graphs.
     """
-    def __init__(self, aggr = 'max', in_features=512, out_features=512):
+
+    def __init__(self, aggr="max", in_features=512, out_features=512):
         super().__init__()
 
-        self.conv1 = GraphConv(in_channels = in_features , out_channels =  out_features, aggr = aggr)
-        self.conv2 = GraphConv(in_channels = out_features, out_channels =  out_features, aggr = aggr)
+        self.conv1 = GraphConv(
+            in_channels=in_features, out_channels=out_features, aggr=aggr
+        )
+        self.conv2 = GraphConv(
+            in_channels=out_features, out_channels=out_features, aggr=aggr
+        )
 
     def forward(self, data):
         typeData = data.type
         x_old, edge_index, edge_attr = data.x, data.edge_index, data.edge_attr
-        ini_size_x = len(x_old)//len(typeData)
-        ini_size_edge = edge_index.shape[1]//len(typeData)
+        ini_size_x = len(x_old) // len(typeData)
+        ini_size_edge = edge_index.shape[1] // len(typeData)
         # logger.info(x_old.shape)
-        
+
         x = self.conv1(x_old, edge_index)
 
         x = x.relu()
@@ -261,15 +276,18 @@ class GDPModel1(torch.nn.Module):
         x = x.relu()
         x = F.dropout(x, p=0.1, training=self.training)
         data.x = x
-        return data 
+        return data
+
 
 class SiameseNodeFeaturesToEdgeFeatures(torch.nn.Module):
     """
     Calculate the attributes of edges through corresponding nodes.
     """
+
     def __init__(self):
         super(SiameseNodeFeaturesToEdgeFeatures, self).__init__()
-#         self.num_edge_features = total_num_nodes
+
+    #         self.num_edge_features = total_num_nodes
     def forward(self, graph):
         orig_graphs = graph.to_data_list()
         orig_graphs = [self.vertex_attr_to_edge_attr(graph) for graph in orig_graphs]
@@ -285,40 +303,46 @@ class SiameseNodeFeaturesToEdgeFeatures(torch.nn.Module):
         new_edge_attrs = vertex_attrs_reshaped[0] - vertex_attrs_reshaped[1]
         graph.edge_attr = new_edge_attrs
         return graph
-     
+
+
 class InnerProductWithWeightsAffinity(nn.Module):
     """
     Calculate similarity score between two embedding vectors.
     """
+
     def __init__(self, cosine_similarity, activation):
-        self.cosine_similarity =  cosine_similarity
+        self.cosine_similarity = cosine_similarity
         self.activation = activation
         super(InnerProductWithWeightsAffinity, self).__init__()
+
     def forward(self, a, b):
         res = None
-        if self.cosine_similarity :
+        if self.cosine_similarity:
             eps = 1e-8
             a_n, b_n = a.norm(dim=1)[:, None], b.norm(dim=1)[:, None]
             a_norm = a / torch.clamp(a_n, min=eps)
             b_norm = b / torch.clamp(b_n, min=eps)
             res = torch.matmul(a_norm, b_norm.transpose(0, 1))
-        else :
+        else:
             res = torch.matmul(a, b.transpose(0, 1))
-         
-        if self.activation == 'softplus':
-            res = torch.nn.functional.softplus(res) 
-        elif self.activation == 'relu' :
-            res = torch.nn.functional.softplus(res)   
+
+        if self.activation == "softplus":
+            res = torch.nn.functional.softplus(res)
+        elif self.activation == "relu":
+            res = torch.nn.functional.softplus(res)
         return res
-               
+
+
 class HammingLoss(torch.nn.Module):
     """
     This class is Hamming loss for multi-graph alignment.
     """
+
     def forward(self, suggested, target):
         errors = suggested * (1.0 - target) + (1.0 - suggested) * target
         return errors.mean(dim=0).sum()
-            
+
+
 class LlavaLlamaModel(LlavaLlamaModelBase):
     def __init__(self, config: LlamaConfig, mm_vision_tower=None, mm_hidden_size=None):
         super().__init__(config, mm_vision_tower, mm_hidden_size)
@@ -338,31 +362,41 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
         self.grad_step = model_args.gradient_accumulation_steps
         self.mm_dense_connector_type = model_args.mm_dense_connector_type
         if self.contrastive:
-            
+
             self.alpha = getattr(model_args, "alpha", 1.0)
             self.multi_graph = model_args.multi_graph
             self.config.multi_graph = model_args.multi_graph
 
-            if not hasattr(self, "build_edge_features_from_node_features") and self.multi_graph:
+            if (
+                not hasattr(self, "build_edge_features_from_node_features")
+                and self.multi_graph
+            ):
                 logger.info("Initial Multi-Graph")
-                self.build_edge_features_from_node_features = SiameseNodeFeaturesToEdgeFeatures()
-                self.vertex_affinity = InnerProductWithWeightsAffinity(cosine_similarity = True, activation = None)
-                self.edge_affinity   = InnerProductWithWeightsAffinity(cosine_similarity = False, activation = None)
+                self.build_edge_features_from_node_features = (
+                    SiameseNodeFeaturesToEdgeFeatures()
+                )
+                self.vertex_affinity = InnerProductWithWeightsAffinity(
+                    cosine_similarity=True, activation=None
+                )
+                self.edge_affinity = InnerProductWithWeightsAffinity(
+                    cosine_similarity=False, activation=None
+                )
                 logger.info("Do not remove graph")
-                self.message_pass_node_features = GDPModel1(aggr = 'max',
-                                                    in_features = model_args.graph_num_features, 
-                                                    out_features  = model_args.graph_num_features)
+                self.message_pass_node_features = GDPModel1(
+                    aggr="max",
+                    in_features=model_args.graph_num_features,
+                    out_features=model_args.graph_num_features,
+                )
 
                 self.hamming_loss = HammingLoss()
                 self.config.graph_num_features = model_args.graph_num_features
             else:
                 logger.info("Multi-Graph already exists or you do not use multi-graph")
-            
+
             self.after_de = model_args.after_de
-            
+
             if self.multi_graph:
                 logger.info("Using Multi-Graph")
-        
 
         if "BiomedCLIP" in vision_tower:
             self.vision_tower_name = (
@@ -412,8 +446,8 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
             model_args, "mm_projector_type", "linear"
         )
 
-        if self.mm_dense_connector_type in ['dci', 'sci']:
-            self.config.mm_hidden_size = vision_config.hidden_size*3
+        if self.mm_dense_connector_type in ["dci", "sci"]:
+            self.config.mm_hidden_size = vision_config.hidden_size * 3
         else:
             self.config.mm_hidden_size = vision_config.hidden_size
         self.config.mm_vision_select_layer = mm_vision_select_layer
@@ -482,7 +516,7 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
         self.config.mm_projector_type = getattr(
             model_args, "mm_projector_type", "linear"
         )
-        
+
         self.config.mm_hidden_size = vision_config.hidden_size
         self.config.mm_vision_select_layer = mm_vision_select_layer
 
@@ -518,16 +552,19 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
             dummy_image_features = torch.zeros(
                 196, 768, device=image_features.device, dtype=image_features.dtype
             )
-            if self.mm_dense_connector_type in ['sti', 'sci', 'dci']:
-                image_features = dense_connector(image_features=image_features, image_forward_outs=image_forward_outs,
-                                                 mm_dense_connector_type=self.mm_dense_connector_type)
+            if self.mm_dense_connector_type in ["sti", "sci", "dci"]:
+                image_features = dense_connector(
+                    image_features=image_features,
+                    image_forward_outs=image_forward_outs,
+                    mm_dense_connector_type=self.mm_dense_connector_type,
+                )
         else:
             image_forward_outs = vision_tower(images, output_hidden_states=True)
             select_hidden_state = image_forward_outs.hidden_states[
                 select_hidden_state_layer
             ]
             image_features = select_hidden_state[:, 1:]
-            if self.mm_dense_connector_type in ['dci', 'sci']:
+            if self.mm_dense_connector_type in ["dci", "sci"]:
                 dummy_image_features = torch.zeros(
                     256, 3072, device=image_features.device, dtype=image_features.dtype
                 )
@@ -535,57 +572,81 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
                 dummy_image_features = torch.zeros(
                     256, 1024, device=image_features.device, dtype=image_features.dtype
                 )
-            if self.mm_dense_connector_type in ['sti', 'sci', 'dci']:
-                image_features = dense_connector(image_features=image_features, image_forward_outs=image_forward_outs,
-                                                 mm_dense_connector_type=self.mm_dense_connector_type)
+            if self.mm_dense_connector_type in ["sti", "sci", "dci"]:
+                image_features = dense_connector(
+                    image_features=image_features,
+                    image_forward_outs=image_forward_outs,
+                    mm_dense_connector_type=self.mm_dense_connector_type,
+                )
         return image_features, dummy_image_features
 
     def build_graph(self, global_map1, global_map2):
         """
-        This function is used to build graph for two embedding inputs 
+        This function is used to build graph for two embedding inputs
         (use structure of graph 1 to create graph 2 with similar structure).
         """
         map_len = global_map1[0].shape[0]
-        edge_indice1, edge_feature1 = build_graphs_main_1(global_map1[0], n_neighbors = 5, num_workers = 1)
-        # duplicate graph structure 
+        edge_indice1, edge_feature1 = build_graphs_main_1(
+            global_map1[0], n_neighbors=5, num_workers=1
+        )
+        # duplicate graph structure
         edge_indice2 = edge_indice1
         # create graph feature from given structure
-        edge_feature2 = calculate_edge_attr_1(edge_indice2, global_map2[0], n_neighbors = 5, num_workers = 1)
-        
-        data_graph1 = Data(x = global_map1[0], edge_index = edge_indice1, edge_attr = edge_feature1, type=global_map1[1])
-        data_graph2 = Data(x = global_map2[0], edge_index = edge_indice2, edge_attr = edge_feature2, type=global_map2[1])
-        graph_loader = loader.DataLoader([data_graph1,data_graph2], batch_size=2)
-        
+        edge_feature2 = calculate_edge_attr_1(
+            edge_indice2, global_map2[0], n_neighbors=5, num_workers=1
+        )
+
+        data_graph1 = Data(
+            x=global_map1[0],
+            edge_index=edge_indice1,
+            edge_attr=edge_feature1,
+            type=global_map1[1],
+        )
+        data_graph2 = Data(
+            x=global_map2[0],
+            edge_index=edge_indice2,
+            edge_attr=edge_feature2,
+            type=global_map2[1],
+        )
+        graph_loader = loader.DataLoader([data_graph1, data_graph2], batch_size=2)
+
         graph = self.message_pass_node_features(next(iter(graph_loader)))
-            
+
         orig_graph = self.build_edge_features_from_node_features(graph)
-        
+
         # add norm for GNN
-        for i in range(len(orig_graph)) :
-            orig_graph[i].x = torch.nn.functional.normalize(orig_graph[i].x,  p=2.0, dim=1)
-            orig_graph[i].edge_attr = torch.nn.functional.normalize(orig_graph[i].edge_attr,  p=2.0, dim=1)
+        for i in range(len(orig_graph)):
+            orig_graph[i].x = torch.nn.functional.normalize(
+                orig_graph[i].x, p=2.0, dim=1
+            )
+            orig_graph[i].edge_attr = torch.nn.functional.normalize(
+                orig_graph[i].edge_attr, p=2.0, dim=1
+            )
         return orig_graph
 
-    def _cal_loss(self, global_1, global_2, mu, beta, gum_matrix_nodes, perm_matrix, device):
+    def _cal_loss(
+        self, global_1, global_2, mu, beta, gum_matrix_nodes, perm_matrix, device
+    ):
         """
         Calculate Hamming Loss for the graph matching component between graph 1 and graph 2.
         """
         loss = 0
         orig_graph = self.build_graph(global_1, global_2)
         unary_costs_list = [
-            self.vertex_affinity(g_1.x, g_2.x)
-                for (g_1, g_2) in lexico_iter(orig_graph)
+            self.vertex_affinity(g_1.x, g_2.x) for (g_1, g_2) in lexico_iter(orig_graph)
         ]
-        unary_costs_list[0] += gum_matrix_nodes 
+        unary_costs_list[0] += gum_matrix_nodes
         unary_costs_list[0] -= 0.5
-        unary_costs_list[0] *= -1 
+        unary_costs_list[0] *= -1
 
         quadratic_costs_list = [
-                    self.edge_affinity(g_1.edge_attr, g_2.edge_attr)
-                    for (g_1, g_2) in lexico_iter(orig_graph)
-                ]
+            self.edge_affinity(g_1.edge_attr, g_2.edge_attr)
+            for (g_1, g_2) in lexico_iter(orig_graph)
+        ]
         num_edges = orig_graph[0].edge_attr.shape[0]
-        quadratic_costs_list[0] += torch.from_numpy(np.random.gumbel(mu, beta, (num_edges,num_edges))).to(device)
+        quadratic_costs_list[0] += torch.from_numpy(
+            np.random.gumbel(mu, beta, (num_edges, num_edges))
+        ).to(device)
         quadratic_costs_list[0] -= 0.5
         quadratic_costs_list[0] *= -0.5
         gm_solvers = GraphMatchingModule(
@@ -594,12 +655,12 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
             [global_1[0].shape[0]],
             [global_1[0].shape[0]],
             cfg.BB_GM.lambda_val,
-            cfg.BB_GM.solver_params
+            cfg.BB_GM.solver_params,
         )
         matching = gm_solvers(unary_costs_list, quadratic_costs_list)
         loss = self.hamming_loss(matching[0], perm_matrix)
         return loss
-    
+
     def forward(
         self,
         input_ids: torch.LongTensor = None,
@@ -664,7 +725,7 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
                 image_features = self.mm_projector(image_features)
 
             dummy_image_features = self.mm_projector(dummy_image_features)
-            
+
             # If using contrastive, check whether using language embedding before or after the LLM
             if self.contrastive:
                 if self.after_de:
@@ -679,7 +740,9 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
                         return_dict=return_dict,
                     )[0]
                     if self.multi_graph:
-                        align_input_embeds_long = super(LlavaLlamaModelBase, self).forward(
+                        align_input_embeds_long = super(
+                            LlavaLlamaModelBase, self
+                        ).forward(
                             input_ids=None,
                             attention_mask=attention_mask_F_long,
                             past_key_values=past_key_values,
@@ -688,7 +751,9 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
                             output_attentions=output_attentions,
                             output_hidden_states=output_hidden_states,
                             return_dict=return_dict,
-                        )[0]
+                        )[
+                            0
+                        ]
                 else:
                     align_input_embeds = Fsentences_embeds
                     if self.multi_graph:
@@ -824,27 +889,65 @@ class LlavaLlamaModel(LlavaLlamaModelBase):
                 align_image_features = image_features.clone()
 
                 if self.multi_graph:
-                    
+
                     logger.info("Using Multi-Graph")
                     align_image_features_mean = align_image_features.mean(1)
                     align_input_embeds_mean = align_input_embeds.mean(1)
                     align_input_embeds_long_mean = align_input_embeds_long.mean(1)
-                    barycenter = 1.0*(align_image_features_mean + align_input_embeds_mean + align_input_embeds_long_mean)/3
-                    
-                    mu, beta = 0, 0.1/2 
-                    gum_matrix_nodes = torch.from_numpy(np.random.gumbel(mu, beta, (align_image_features.shape[0] ,
-                                                                         align_image_features.shape[0]))).to(image_features.device)
+                    barycenter = (
+                        1.0
+                        * (
+                            align_image_features_mean
+                            + align_input_embeds_mean
+                            + align_input_embeds_long_mean
+                        )
+                        / 3
+                    )
 
-                    perm_matrix = torch.diag(torch.ones(align_image_features.shape[0]),0).to(image_features.device)
-    
+                    mu, beta = 0, 0.1 / 2
+                    gum_matrix_nodes = torch.from_numpy(
+                        np.random.gumbel(
+                            mu,
+                            beta,
+                            (
+                                align_image_features.shape[0],
+                                align_image_features.shape[0],
+                            ),
+                        )
+                    ).to(image_features.device)
+
+                    perm_matrix = torch.diag(
+                        torch.ones(align_image_features.shape[0]), 0
+                    ).to(image_features.device)
+
                     lossAlign = 0
-                    
-                    for each_global in [(align_image_features_mean, 'none'), (align_input_embeds_mean, 'none'), (align_input_embeds_long_mean, 'none')]:
+
+                    for each_global in [
+                        (align_image_features_mean, "none"),
+                        (align_input_embeds_mean, "none"),
+                        (align_input_embeds_long_mean, "none"),
+                    ]:
                         print(each_global[0].shape)
                         loss = 0
-                        loss += self._cal_loss(each_global, (barycenter, 'none'), mu, beta, gum_matrix_nodes, perm_matrix, image_features.device)
-                        loss += self._cal_loss((barycenter, 'none'), each_global, mu, beta, gum_matrix_nodes, perm_matrix, image_features.device)
-                        loss = loss/2
+                        loss += self._cal_loss(
+                            each_global,
+                            (barycenter, "none"),
+                            mu,
+                            beta,
+                            gum_matrix_nodes,
+                            perm_matrix,
+                            image_features.device,
+                        )
+                        loss += self._cal_loss(
+                            (barycenter, "none"),
+                            each_global,
+                            mu,
+                            beta,
+                            gum_matrix_nodes,
+                            perm_matrix,
+                            image_features.device,
+                        )
+                        loss = loss / 2
                         lossAlign += loss
 
                     lossAlign /= 3

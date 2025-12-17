@@ -71,9 +71,7 @@ class ModelArguments:
         default=0.0051,
         metadata={"help": "for Barlow Twins, weight on off-diagonal terms"},
     )
-    qformer_path: Optional[str] = field(
-        default=None
-    )
+    qformer_path: Optional[str] = field(default=None)
     prompt_mode: Optional[str] = field(default="simple")
 
 
@@ -569,7 +567,7 @@ def make_supervised_data_module(
             use_im_start_end=getattr(data_args, "mm_use_im_start_end", False),
             image_processor=getattr(data_args, "image_processor", None),
             use_qformer_query_as_image_token=use_qformer_query_as_image_token,
-        )
+        ),
     )
     eval_dataset = {}
     qa_type_dict = {}
@@ -590,7 +588,7 @@ def make_supervised_data_module(
                 image_processor=getattr(data_args, "image_processor", None),
                 use_qformer_query_as_image_token=use_qformer_query_as_image_token,
             ),
-            is_val=True
+            is_val=True,
         )
         with open(test_path, "r") as f:
             raw_test = json.load(f)
@@ -616,7 +614,7 @@ def make_supervised_data_module(
                 image_processor=getattr(data_args, "image_processor", None),
                 use_qformer_query_as_image_token=use_qformer_query_as_image_token,
             ),
-            is_val=True
+            is_val=True,
         )
         with open(val_path, "r") as f:
             raw_val = json.load(f)
@@ -677,7 +675,6 @@ def prepare_compute_metrics(tokenizer, qa_type_dict, should_evaluate):
 
         closed_scores = collections.defaultdict(list)
         f1_scores = collections.defaultdict(list)
-        # ans_file = open('/netscratch/duynguyen/Research/trained_weights_debug/answer_when_training_epoch' + str(epoch) + '.jsonl', "w")
         for i, (prediction, label, qa_type) in enumerate(
             zip(predictions, labels, qa_type_list)
         ):

@@ -63,13 +63,14 @@ class ImageEncoderViT(nn.Module):
             in_chans=in_chans,
             embed_dim=embed_dim,
         )
-        
 
         self.pos_embed: Optional[nn.Parameter] = None
         if use_abs_pos:
             # Initialize absolute positional embedding with pretrain image size.
             self.pos_embed = nn.Parameter(
-                torch.zeros(1, img_size // patch_size, img_size // patch_size, embed_dim)
+                torch.zeros(
+                    1, img_size // patch_size, img_size // patch_size, embed_dim
+                )
             )
 
         self.blocks = nn.ModuleList()
@@ -87,9 +88,9 @@ class ImageEncoderViT(nn.Module):
                 input_size=(img_size // patch_size, img_size // patch_size),
             )
             self.blocks.append(block)
-        
+
         self.include_neck = include_neck
-        if self.include_neck : 
+        if self.include_neck:
             self.neck = nn.Sequential(
                 nn.Conv2d(
                     embed_dim,
@@ -107,47 +108,46 @@ class ImageEncoderViT(nn.Module):
                 ),
                 LayerNorm2d(out_chans),
             )
-        
+
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        
-        
-#                 device = x.device
+
+        #                 device = x.device
         pixel_mean = [123.675, 116.28, 103.53]
-        pixel_std  = [58.395, 57.12, 57.375]
-        self.register_buffer("pixel_mean", torch.Tensor(pixel_mean).view(-1, 1, 1), False)
+        pixel_std = [58.395, 57.12, 57.375]
+        self.register_buffer(
+            "pixel_mean", torch.Tensor(pixel_mean).view(-1, 1, 1), False
+        )
         self.register_buffer("pixel_std", torch.Tensor(pixel_std).view(-1, 1, 1), False)
-        
+
     def preprocess(self, x):
         """Normalize pixel values and pad to a square input."""
         # Normalize colors
-
-
 
         x = (x - self.pixel_mean) / self.pixel_std
 
         # Pad
         h, w = x.shape[-2:]
-        padh = 1024 - h   #(image_encoder.img_size = 1024)
-        padw = 1024 - w   #(image_encoder.img_size = 1024)
+        padh = 1024 - h  # (image_encoder.img_size = 1024)
+        padw = 1024 - w  # (image_encoder.img_size = 1024)
         x = F.pad(x, (0, padw, 0, padh))
         return x
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-#         x = self.preprocess(x)  # from bs, 3, 224, 224 -> bs, 3, 1024, 1024
+        #         x = self.preprocess(x)  # from bs, 3, 224, 224 -> bs, 3, 1024, 1024
         x = self.patch_embed(x)
         if self.pos_embed is not None:
             x = x + self.pos_embed
 
         for blk in self.blocks:
-            x = blk(x) # 4, 14, 14, 768
-        
-        if self.include_neck : 
+            x = blk(x)  # 4, 14, 14, 768
+
+        if self.include_neck:
             x = self.neck(x.permute(0, 3, 1, 2))  # 4, 256, 14, 14
-        else :
-            x = x.permute(0,3,1,2) # 4, 768, 14, 14
+        else:
+            x = x.permute(0, 3, 1, 2)  # 4, 768, 14, 14
         x_avg = self.avgpool(x)
         x_avg = torch.flatten(x_avg, 1)
-        x = x.flatten(2, 3).permute(0, 2, 1)   # bs, 256, 64, 64
+        x = x.flatten(2, 3).permute(0, 2, 1)  # bs, 256, 64, 64
         return x, x_avg
 
 
@@ -194,7 +194,9 @@ class Block(nn.Module):
         )
 
         self.norm2 = norm_layer(dim)
-        self.mlp = MLPBlock(embedding_dim=dim, mlp_dim=int(dim * mlp_ratio), act=act_layer)
+        self.mlp = MLPBlock(
+            embedding_dim=dim, mlp_dim=int(dim * mlp_ratio), act=act_layer
+        )
 
         self.window_size = window_size
 
@@ -259,23 +261,34 @@ class Attention(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, H, W, _ = x.shape
         # qkv with shape (3, B, nHead, H * W, C)
-        qkv = self.qkv(x).reshape(B, H * W, 3, self.num_heads, -1).permute(2, 0, 3, 1, 4)
+        qkv = (
+            self.qkv(x).reshape(B, H * W, 3, self.num_heads, -1).permute(2, 0, 3, 1, 4)
+        )
         # q, k, v with shape (B * nHead, H * W, C)
         q, k, v = qkv.reshape(3, B * self.num_heads, H * W, -1).unbind(0)
 
         attn = (q * self.scale) @ k.transpose(-2, -1)
 
         if self.use_rel_pos:
-            attn = add_decomposed_rel_pos(attn, q, self.rel_pos_h, self.rel_pos_w, (H, W), (H, W))
+            attn = add_decomposed_rel_pos(
+                attn, q, self.rel_pos_h, self.rel_pos_w, (H, W), (H, W)
+            )
 
         attn = attn.softmax(dim=-1)
-        x = (attn @ v).view(B, self.num_heads, H, W, -1).permute(0, 2, 3, 1, 4).reshape(B, H, W, -1)
+        x = (
+            (attn @ v)
+            .view(B, self.num_heads, H, W, -1)
+            .permute(0, 2, 3, 1, 4)
+            .reshape(B, H, W, -1)
+        )
         x = self.proj(x)
 
         return x
 
 
-def window_partition(x: torch.Tensor, window_size: int) -> Tuple[torch.Tensor, Tuple[int, int]]:
+def window_partition(
+    x: torch.Tensor, window_size: int
+) -> Tuple[torch.Tensor, Tuple[int, int]]:
     """
     Partition into non-overlapping windows with padding if needed.
     Args:
@@ -295,12 +308,17 @@ def window_partition(x: torch.Tensor, window_size: int) -> Tuple[torch.Tensor, T
     Hp, Wp = H + pad_h, W + pad_w
 
     x = x.view(B, Hp // window_size, window_size, Wp // window_size, window_size, C)
-    windows = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size, window_size, C)
+    windows = (
+        x.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size, window_size, C)
+    )
     return windows, (Hp, Wp)
 
 
 def window_unpartition(
-    windows: torch.Tensor, window_size: int, pad_hw: Tuple[int, int], hw: Tuple[int, int]
+    windows: torch.Tensor,
+    window_size: int,
+    pad_hw: Tuple[int, int],
+    hw: Tuple[int, int],
 ) -> torch.Tensor:
     """
     Window unpartition into original sequences and removing padding.
@@ -316,7 +334,9 @@ def window_unpartition(
     Hp, Wp = pad_hw
     H, W = hw
     B = windows.shape[0] // (Hp * Wp // window_size // window_size)
-    x = windows.view(B, Hp // window_size, Wp // window_size, window_size, window_size, -1)
+    x = windows.view(
+        B, Hp // window_size, Wp // window_size, window_size, window_size, -1
+    )
     x = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(B, Hp, Wp, -1)
 
     if Hp > H or Wp > W:
@@ -379,7 +399,7 @@ def add_decomposed_rel_pos(
     Returns:
         attn (Tensor): attention map with added relative positional embeddings.
     """
-    
+
     q_h, q_w = q_size
     k_h, k_w = k_size
     Rh = get_rel_pos(q_h, k_h, rel_pos_h)
@@ -391,7 +411,9 @@ def add_decomposed_rel_pos(
     rel_w = torch.einsum("bhwc,wkc->bhwk", r_q, Rw)
 
     attn = (
-        attn.view(B, q_h, q_w, k_h, k_w) + rel_h[:, :, :, :, None] + rel_w[:, :, :, None, :]
+        attn.view(B, q_h, q_w, k_h, k_w)
+        + rel_h[:, :, :, :, None]
+        + rel_w[:, :, :, None, :]
     ).view(B, q_h * q_w, k_h * k_w)
 
     return attn
@@ -430,201 +452,186 @@ class PatchEmbed(nn.Module):
         x = x.permute(0, 2, 3, 1)
         return x
 
-    
-    
-    
+
 def vit_encoder_h():
-    
+
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
 
+    encoder_embed_dim = 1280
+    encoder_depth = 32
+    encoder_num_heads = 16
+    encoder_global_attn_indexes = [7, 15, 23, 31]
 
-    encoder_embed_dim=1280
-    encoder_depth=32
-    encoder_num_heads=16
-    encoder_global_attn_indexes=[7, 15, 23, 31]
-
-    image_encoder=ImageEncoderViT(
-            depth=encoder_depth,
-            embed_dim=encoder_embed_dim,
-            img_size=image_size,
-            mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
-            num_heads=encoder_num_heads,
-            patch_size=vit_patch_size,
-            qkv_bias=True,
-            use_rel_pos=True,
-            use_abs_pos = False,
-            global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
-            out_chans=prompt_embed_dim,
-        )
+    image_encoder = ImageEncoderViT(
+        depth=encoder_depth,
+        embed_dim=encoder_embed_dim,
+        img_size=image_size,
+        mlp_ratio=4,
+        norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+        num_heads=encoder_num_heads,
+        patch_size=vit_patch_size,
+        qkv_bias=True,
+        use_rel_pos=True,
+        use_abs_pos=False,
+        global_attn_indexes=encoder_global_attn_indexes,
+        window_size=14,
+        out_chans=prompt_embed_dim,
+    )
     return image_encoder, 1280
 
 
 def vit_encoder_h_notneck():
-    
+
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
 
+    encoder_embed_dim = 1280
+    encoder_depth = 32
+    encoder_num_heads = 16
+    encoder_global_attn_indexes = [7, 15, 23, 31]
 
-    encoder_embed_dim=1280
-    encoder_depth=32
-    encoder_num_heads=16
-    encoder_global_attn_indexes=[7, 15, 23, 31]
-
-    image_encoder=ImageEncoderViT(
-            depth=encoder_depth,
-            embed_dim=encoder_embed_dim,
-            img_size=image_size,
-            mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
-            num_heads=encoder_num_heads,
-            patch_size=vit_patch_size,
-            qkv_bias=True,
-            use_rel_pos=True,
-            use_abs_pos = False,
-            include_neck = False,
-            global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
-            out_chans=prompt_embed_dim,
-        )
+    image_encoder = ImageEncoderViT(
+        depth=encoder_depth,
+        embed_dim=encoder_embed_dim,
+        img_size=image_size,
+        mlp_ratio=4,
+        norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+        num_heads=encoder_num_heads,
+        patch_size=vit_patch_size,
+        qkv_bias=True,
+        use_rel_pos=True,
+        use_abs_pos=False,
+        include_neck=False,
+        global_attn_indexes=encoder_global_attn_indexes,
+        window_size=14,
+        out_chans=prompt_embed_dim,
+    )
     return image_encoder, 1280
 
 
-
-
-
 def vit_encoder_l():
-    
+
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
 
+    encoder_embed_dim = 1024
+    encoder_depth = 24
+    encoder_num_heads = 16
+    encoder_global_attn_indexes = [5, 11, 17, 23]
 
-    encoder_embed_dim=1024
-    encoder_depth=24
-    encoder_num_heads=16
-    encoder_global_attn_indexes=[5, 11, 17, 23]
-
-
-    image_encoder=ImageEncoderViT(
-            depth=encoder_depth,
-            embed_dim=encoder_embed_dim,
-            img_size=image_size,
-            mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
-            num_heads=encoder_num_heads,
-            patch_size=vit_patch_size,
-            qkv_bias=True,
-            use_rel_pos=True,
-            use_abs_pos = False,
-            
-            global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
-            out_chans=prompt_embed_dim,
-        )
+    image_encoder = ImageEncoderViT(
+        depth=encoder_depth,
+        embed_dim=encoder_embed_dim,
+        img_size=image_size,
+        mlp_ratio=4,
+        norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+        num_heads=encoder_num_heads,
+        patch_size=vit_patch_size,
+        qkv_bias=True,
+        use_rel_pos=True,
+        use_abs_pos=False,
+        global_attn_indexes=encoder_global_attn_indexes,
+        window_size=14,
+        out_chans=prompt_embed_dim,
+    )
     return image_encoder, 4096
 
 
 def vit_encoder_l_notneck():
-    
+
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
 
+    encoder_embed_dim = 1024
+    encoder_depth = 24
+    encoder_num_heads = 16
+    encoder_global_attn_indexes = [5, 11, 17, 23]
 
-    encoder_embed_dim=1024
-    encoder_depth=24
-    encoder_num_heads=16
-    encoder_global_attn_indexes=[5, 11, 17, 23]
-
-
-    image_encoder=ImageEncoderViT(
-            depth=encoder_depth,
-            embed_dim=encoder_embed_dim,
-            img_size=image_size,
-            mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
-            num_heads=encoder_num_heads,
-            patch_size=vit_patch_size,
-            qkv_bias=True,
-            use_rel_pos=True,
-            use_abs_pos = False,
-            include_neck = False, 
-            global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
-            out_chans=prompt_embed_dim,
-        )
+    image_encoder = ImageEncoderViT(
+        depth=encoder_depth,
+        embed_dim=encoder_embed_dim,
+        img_size=image_size,
+        mlp_ratio=4,
+        norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+        num_heads=encoder_num_heads,
+        patch_size=vit_patch_size,
+        qkv_bias=True,
+        use_rel_pos=True,
+        use_abs_pos=False,
+        include_neck=False,
+        global_attn_indexes=encoder_global_attn_indexes,
+        window_size=14,
+        out_chans=prompt_embed_dim,
+    )
     return image_encoder, 1024
 
 
-
 def vit_encoder_b():
-    
+
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
 
+    encoder_embed_dim = 768
+    encoder_depth = 12
+    encoder_num_heads = 12
+    encoder_global_attn_indexes = [2, 5, 8, 11]
 
-    encoder_embed_dim=768
-    encoder_depth=12
-    encoder_num_heads=12
-    encoder_global_attn_indexes=[2, 5, 8, 11]
-
-    image_encoder=ImageEncoderViT(
-            depth=encoder_depth,
-            embed_dim=encoder_embed_dim,
-            img_size=image_size,
-            mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
-            num_heads=encoder_num_heads,
-            patch_size=vit_patch_size,
-            qkv_bias=True,
-            use_rel_pos=True,
-            use_abs_pos = True,
-            global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
-            out_chans=prompt_embed_dim,
-        )
+    image_encoder = ImageEncoderViT(
+        depth=encoder_depth,
+        embed_dim=encoder_embed_dim,
+        img_size=image_size,
+        mlp_ratio=4,
+        norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+        num_heads=encoder_num_heads,
+        patch_size=vit_patch_size,
+        qkv_bias=True,
+        use_rel_pos=True,
+        use_abs_pos=True,
+        global_attn_indexes=encoder_global_attn_indexes,
+        window_size=14,
+        out_chans=prompt_embed_dim,
+    )
     return image_encoder, 256
 
 
 def vit_encoder_b_notneck():
-    
-    # not include neck 
+
+    # not include neck
     prompt_embed_dim = 256
     image_size = 1024
     vit_patch_size = 16
     image_embedding_size = image_size // vit_patch_size
 
+    encoder_embed_dim = 768
+    encoder_depth = 12
+    encoder_num_heads = 12
+    encoder_global_attn_indexes = [2, 5, 8, 11]
 
-    encoder_embed_dim=768
-    encoder_depth=12
-    encoder_num_heads=12
-    encoder_global_attn_indexes=[2, 5, 8, 11]
-
-    image_encoder=ImageEncoderViT(
-            depth=encoder_depth,
-            embed_dim=encoder_embed_dim,
-            img_size=image_size,
-            mlp_ratio=4,
-            norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
-            num_heads=encoder_num_heads,
-            patch_size=vit_patch_size,
-            qkv_bias=True,
-            use_rel_pos=True,
-            use_abs_pos = False,
-            include_neck = False,
-            global_attn_indexes=encoder_global_attn_indexes,
-            window_size=14,
-            out_chans=prompt_embed_dim,
-        )
+    image_encoder = ImageEncoderViT(
+        depth=encoder_depth,
+        embed_dim=encoder_embed_dim,
+        img_size=image_size,
+        mlp_ratio=4,
+        norm_layer=partial(torch.nn.LayerNorm, eps=1e-6),
+        num_heads=encoder_num_heads,
+        patch_size=vit_patch_size,
+        qkv_bias=True,
+        use_rel_pos=True,
+        use_abs_pos=False,
+        include_neck=False,
+        global_attn_indexes=encoder_global_attn_indexes,
+        window_size=14,
+        out_chans=prompt_embed_dim,
+    )
     return image_encoder, 768

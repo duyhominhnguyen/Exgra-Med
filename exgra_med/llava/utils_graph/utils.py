@@ -13,6 +13,7 @@ import pickle
 import argparse
 import numpy as np
 from loguru import logger
+
 # from logging import getLogger
 
 from torch import nn
@@ -20,14 +21,12 @@ import torch.distributed as dist
 from itertools import combinations as comb
 
 
-
-
 # code borrowed from  paper ECCV 2020
 def lexico_iter(lex):
     return comb(lex, 2)
 
 
-# code borrowed from SwAV (NIPS 2020) paper 
+# code borrowed from SwAV (NIPS 2020) paper
 def restart_from_checkpoint(ckp_paths, run_variables=None, **kwargs):
     """
     Re-start from checkpoint
@@ -47,7 +46,9 @@ def restart_from_checkpoint(ckp_paths, run_variables=None, **kwargs):
 
     # open checkpoint file
     checkpoint = torch.load(
-        ckp_path, map_location="cuda:" + str(torch.distributed.get_rank() % torch.cuda.device_count())
+        ckp_path,
+        map_location="cuda:"
+        + str(torch.distributed.get_rank() % torch.cuda.device_count()),
     )
 
     # key is what to look for in the checkpoint file
@@ -71,7 +72,7 @@ def restart_from_checkpoint(ckp_paths, run_variables=None, **kwargs):
         for var_name in run_variables:
             if var_name in checkpoint:
                 run_variables[var_name] = checkpoint[var_name]
-                
+
 
 def fix_random_seeds(seed=31):
     """
@@ -99,7 +100,6 @@ class AverageMeter(object):
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
-
 
 
 def round_log(key, log, item=True, iters=1):
@@ -216,5 +216,5 @@ def MLP(mlp, embedding, norm_layer):
             layers.append(nn.LayerNorm(f[i + 1]))
         layers.append(nn.ReLU(True))
     layers.append(nn.Linear(f[-2], f[-1], bias=False))
-#     layers.append(nn.LayerNorm(f[-1]))
+    #     layers.append(nn.LayerNorm(f[-1]))
     return nn.Sequential(*layers)

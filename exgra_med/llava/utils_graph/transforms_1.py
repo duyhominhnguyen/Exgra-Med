@@ -22,7 +22,7 @@ from torchvision.transforms import InterpolationMode
 from torchvision.transforms.functional import _interpolation_modes_from_int
 import torchvision.transforms.functional as FT
 
-from loguru import logger 
+from loguru import logger
 
 
 class GaussianBlur(object):
@@ -277,7 +277,7 @@ class PILRandomGaussianBlur(object):
     This transform was used in SimCLR - https://arxiv.org/abs/2002.05709
     """
 
-    def __init__(self, p=0.5, radius_min=0.1, radius_max=2.):
+    def __init__(self, p=0.5, radius_min=0.1, radius_max=2.0):
         self.prob = p
         self.radius_min = radius_min
         self.radius_max = radius_max
@@ -296,7 +296,7 @@ class PILRandomGaussianBlur(object):
 
 def get_color_distortion(s=1.0):
     # s is the strength of color distortion.
-    color_jitter = transforms.ColorJitter(0.8*s, 0.8*s, 0.8*s, 0.2*s)
+    color_jitter = transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)
     rnd_color_jitter = transforms.RandomApply([color_jitter], p=0.8)
     rnd_gray = transforms.RandomGrayscale(p=0.2)
     color_distort = transforms.Compose([rnd_color_jitter, rnd_gray])
@@ -321,37 +321,36 @@ class MultiCropTrainDataTransform_1(object):
         self.random_resized_crops = []
         self.augmentations = []
         self.flip = RandomHorizontalFlipReturnsIfFlip(p=0.5)
-        color_transform = [get_color_distortion(), PILRandomGaussianBlur()] # new
+        color_transform = [get_color_distortion(), PILRandomGaussianBlur()]  # new
         for i in range(len(size_crops)):
             for j in range(num_crops[i]):
                 if self.return_location_masks:
                     random_resized_crop = RandomResizedCropWithLocation(
                         size_crops[i],
                         scale=(min_scale_crops[i], max_scale_crops[i]),
-                        interpolation=InterpolationMode.BILINEAR, # new
+                        interpolation=InterpolationMode.BILINEAR,  # new
                     )
                 else:
                     random_resized_crop = transforms.RandomResizedCrop(
                         size_crops[i],
                         scale=(min_scale_crops[i], max_scale_crops[i]),
-                        interpolation=InterpolationMode.BILINEAR, # new
+                        interpolation=InterpolationMode.BILINEAR,  # new
                     )
                 self.random_resized_crops.append(random_resized_crop)
                 self.augmentations.append(
                     transforms.Compose(
                         [
-#                             get_color_distortion(left=(j % 2 == 0)),
+                            #                             get_color_distortion(left=(j % 2 == 0)),
                             transforms.Compose(color_transform),
                             torchvision.transforms.Grayscale(num_output_channels=3),
                             transforms.ToTensor(),
                             transforms.Normalize(
-                                mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225],
+                                mean=[0.485, 0.456, 0.406],
+                                std=[0.228, 0.224, 0.225],
                             ),
                         ]
                     )
                 )
-               
-                
 
     def __call__(self, img):
         multi_crops_no_augs = list(
@@ -401,6 +400,3 @@ class MultiCropValDataTransform_1(MultiCropTrainDataTransform_1):
         val_crop = self.eval_trans(img)
         val_crop_with_train_transform = super().__call__(img)
         return (val_crop, val_crop_with_train_transform)
-
-    
-    

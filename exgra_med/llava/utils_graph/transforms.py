@@ -22,7 +22,7 @@ from torchvision.transforms import InterpolationMode
 from torchvision.transforms.functional import _interpolation_modes_from_int
 import torchvision.transforms.functional as FT
 
-from loguru import logger 
+from loguru import logger
 
 
 class GaussianBlur(object):
@@ -277,7 +277,7 @@ class PILRandomGaussianBlur(object):
     This transform was used in SimCLR - https://arxiv.org/abs/2002.05709
     """
 
-    def __init__(self, p=0.5, radius_min=0.1, radius_max=2.):
+    def __init__(self, p=0.5, radius_min=0.1, radius_max=2.0):
         self.prob = p
         self.radius_min = radius_min
         self.radius_max = radius_max
@@ -296,7 +296,7 @@ class PILRandomGaussianBlur(object):
 
 def get_color_distortion(s=1.0):
     # s is the strength of color distortion.
-    color_jitter = transforms.ColorJitter(0.8*s, 0.8*s, 0.8*s, 0.2*s)
+    color_jitter = transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)
     rnd_color_jitter = transforms.RandomApply([color_jitter], p=0.8)
     rnd_gray = transforms.RandomGrayscale(p=0.2)
     color_distort = transforms.Compose([rnd_color_jitter, rnd_gray])
@@ -321,37 +321,36 @@ class MultiCropTrainDataTransform(object):
         self.random_resized_crops = []
         self.augmentations = []
         self.flip = RandomHorizontalFlipReturnsIfFlip(p=0.5)
-        color_transform = [get_color_distortion(), PILRandomGaussianBlur()] # new
+        color_transform = [get_color_distortion(), PILRandomGaussianBlur()]  # new
         for i in range(len(size_crops)):
             for j in range(num_crops[i]):
                 if self.return_location_masks:
                     random_resized_crop = RandomResizedCropWithLocation(
                         size_crops[i],
                         scale=(min_scale_crops[i], max_scale_crops[i]),
-                        interpolation=InterpolationMode.BILINEAR, # new
+                        interpolation=InterpolationMode.BILINEAR,  # new
                     )
                 else:
                     random_resized_crop = transforms.RandomResizedCrop(
                         size_crops[i],
                         scale=(min_scale_crops[i], max_scale_crops[i]),
-                        interpolation=InterpolationMode.BILINEAR, # new
+                        interpolation=InterpolationMode.BILINEAR,  # new
                     )
                 self.random_resized_crops.append(random_resized_crop)
                 self.augmentations.append(
                     transforms.Compose(
                         [
-#                             get_color_distortion(left=(j % 2 == 0)),
+                            #                             get_color_distortion(left=(j % 2 == 0)),
                             transforms.Compose(color_transform),
                             torchvision.transforms.Grayscale(num_output_channels=3),
                             transforms.ToTensor(),
                             transforms.Normalize(
-                                mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225],
+                                mean=[0.485, 0.456, 0.406],
+                                std=[0.228, 0.224, 0.225],
                             ),
                         ]
                     )
                 )
-               
-                
 
     def __call__(self, img):
         multi_crops_no_augs = list(
@@ -402,8 +401,7 @@ class MultiCropValDataTransform(MultiCropTrainDataTransform):
         val_crop_with_train_transform = super().__call__(img)
         return (val_crop, val_crop_with_train_transform)
 
-    
-    
+
 class MultiCropTrainDataTransform_1(object):
     def __init__(
         self,
@@ -421,9 +419,9 @@ class MultiCropTrainDataTransform_1(object):
 
         self.random_resized_crops = []
         self.augmentations = []
-        # new 
+        # new
         self.raw_resized = []
-        
+
         self.flip = RandomHorizontalFlipReturnsIfFlip(p=0.5)
         for i in range(len(size_crops)):
             for j in range(num_crops[i]):
@@ -439,12 +437,12 @@ class MultiCropTrainDataTransform_1(object):
                         scale=(min_scale_crops[i], max_scale_crops[i]),
                         interpolation=InterpolationMode.BICUBIC,
                     )
-                
+
                 resized = transforms.Resize(
-                    (size_crops[i],size_crops[i]),
-                    interpolation=InterpolationMode.BICUBIC, 
+                    (size_crops[i], size_crops[i]),
+                    interpolation=InterpolationMode.BICUBIC,
                 )
-                # new line 
+                # new line
                 self.raw_resized.append(resized)
                 self.random_resized_crops.append(random_resized_crop)
                 self.augmentations.append(
@@ -453,31 +451,30 @@ class MultiCropTrainDataTransform_1(object):
                             get_color_distortion(left=(j % 2 == 0)),
                             transforms.ToTensor(),
                             transforms.Normalize(
-                                mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225],
+                                mean=[0.485, 0.456, 0.406],
+                                std=[0.228, 0.224, 0.225],
                             ),
                         ]
                     )
                 )
-               
-                
 
     def __call__(self, img):
         multi_crops_no_augs = list(
             map(lambda trans: trans(img), self.random_resized_crops)
         )
-        # new 
-        raw_resized_no_augs = list(
-            map(lambda trans: trans(img), self.raw_resized)
-        )
-        
+        # new
+        raw_resized_no_augs = list(map(lambda trans: trans(img), self.raw_resized))
+
         if self.return_location_masks:
             raws = []
             multi_crops = []
             locations = []
-            for i, (raw, (crop, location))  in enumerate(zip(raw_resized_no_augs,multi_crops_no_augs)):
+            for i, (raw, (crop, location)) in enumerate(
+                zip(raw_resized_no_augs, multi_crops_no_augs)
+            ):
                 crop, is_flip = self.flip(crop)
                 multi_crops.append(self.augmentations[i](crop))
-                if i == 0 :
+                if i == 0:
                     raws.append(self.augmentations[i](raw))
                 grid_size = 7
                 if i >= self.num_crops[0]:
