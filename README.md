@@ -245,6 +245,18 @@ python extended_caption_generation.py
   --resume_from data/original_extended_gpt-4o-mini_20250101_120000.json
 ```
 
+## Pre-Training on Two Stages
+
+We provide ready-to-use scripts to pre-train **EXGRA-MED** on 2 stages named `stage1.sh` and `stage2.sh` in `scripts/` folder after downloading pre-training dataset. Make sure to update the `--model_name_or_path`, `--data_path`, and `--image_folder` in each `.sh` file to point to the correct location of the downloaded model and dataset.
+
+```bash
+# Example: Pre-train EXGRA-Med on stage 1
+bash scripts/stage1.sh
+
+# Example: Pre-train EXGRA-Med on stage 2
+bash scripts/stage2.sh
+```
+
 ## 🔧 Fine-tuning on VQA Tasks
 We provide ready-to-use scripts to fine-tune **EXGRA-MED** and **EXGRA-MED + DCI** on three popular medical VQA benchmarks: **VQA-RAD**, **SLAKE**, and **PATH-VQA**.
 
