@@ -1,4 +1,4 @@
-# EXGRA-MED: Extended Context Graph Alignment for Medical Vision-Language Models
+# EXGRA-MED: Extended Context Graph Alignment for Medical Vision-Language Models (NeurIPS 2025)
 
 [![ArXiv](https://img.shields.io/badge/Paper-ArXiv-b31b1b.svg)](https://arxiv.org/pdf/2410.02615v3)
 [![Hugging Face](https://img.shields.io/badge/🤗%20Model-HuggingFace-blue)](https://huggingface.co/MERGE-Group)
@@ -74,7 +74,7 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 
 ---
 ## 📣 News
-
+- **[Dec 2025]** 📣 The paper has been accepted at **NeurIPS 2025!**
 - **[Jun 2025]** 🔓 Initial codebase release (preprocessing + VQA fine-tuning).
 - **[Jun 2025]** 🧩 Checkpoints for EXGRA-MED + DCI and three VQA fine-tuned models now available.
 - **[Jun 2025]** 📊 Evaluation scripts and demo for the data-efficiency benchmark for VQA are online.
@@ -346,7 +346,7 @@ If you find this work useful, please cite our paper:
 @article{nguyen2025exgra,
   title={EXGRA-MED: Extended Context Graph Alignment for Medical Vision- Language Models},
   author={Duy M. H. Nguyen, Nghiem T. Diep, Trung Q. Nguyen, Hoang-Bao Le, Tai Nguyen, Tien Nguyen, TrungTin Nguyen, Nhat Ho, Pengtao Xie, Roger Wattenhofer, James Zou, Daniel Sonntag, Mathias Niepert},
-  journal={arXiv preprint arXiv:2410.02615},
+  journal={Advances in Neural Information Processing Systems (NeurIPS)},
   year={2025}
 }
 ```
