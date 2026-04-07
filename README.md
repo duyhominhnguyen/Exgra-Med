@@ -57,23 +57,23 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 ---
 ## Table of Contents
 
-- [📣 News](#-news)
-- [📦 Model Checkpoints](#-model-checkpoints)
-- [🛠️ Installation](#installation)
+- [📣 News](#news)
+- [📦 Model Checkpoints](#model-checkpoints)
+- [🛠️ Requirements and Installation](#requirements-and-installation)
 - [📂 Project Structure](#project-structure)
 - [📄 Dataset Configuration Files](#dataset-configuration-files)
 - [🖇️ Extended Instructions Generation](#extended-instructions-generation)
-- [Pre-Training on Two Stages](#-pre-training-on-two-stages)
-- [🔧 Fine-tuning on VQA Tasks](#-fine-tuning-on-vqa-tasks)
-- [📈 Evaluation](#-evaluation)
+- [Pre-Training on Two Stages](#pre-training-on-two-stages)
+- [🔧 Fine-tuning on VQA Tasks](#fine-tuning-on-vqa-tasks)
+- [📈 Evaluation](#evaluation)
   - [1. Medical VQA Evaluation](#1-medical-vqa-evaluation)
   - [2. Medical Visual Chatbot](#2-medical-visual-chatbot)
   - [3. Zero-shot Image Classification](#3-zero-shot-image-classification)
-- [🔬 Data Efficiency Demonstration (10% vs 40%)](#-data-efficiency-demonstration-10-vs-40)
+- [🔬 Data Efficiency Demonstration (10% vs 40%)](#data-efficiency-demonstration-10-vs-40)
 - [📖 Citation](#citation)
 
 ---
-## 📣 News
+## News
 - **[Dec 2025]** 📣 The paper has been accepted at **NeurIPS 2025!**
 - **[Jun 2025]** 🔓 Initial codebase release (preprocessing + VQA fine-tuning).
 - **[Jun 2025]** 🧩 Checkpoints for EXGRA-MED + DCI and three VQA fine-tuned models now available.
@@ -83,7 +83,7 @@ To address this, we introduce **EXGRA-MED, a novel multi-graph alignment framewo
 
 ---
 
-## 📦 Model Checkpoints
+## Model Checkpoints
 
 | Model                                  | Description                                |🤗 Download Link |
 |----------------------------------------|--------------------------------------------|---------------|
@@ -136,7 +136,7 @@ huggingface-cli download --resume-download --local-dir-use-symlinks False MERGE-
 
 </details>
 
-## 🛠️ Requirements and Installation
+## Requirements and Installation
 
 Basic Dependencies:
 
@@ -175,7 +175,7 @@ pip install --no-build-isolation git+https://github.com/mrolinek/lpmp.git@9fd621
 pip install pycocotools
 ```
 -----
-## 📂 Project Structure
+## Project Structure
 * **`assets/`**: Contains various assets used by the project (e.g., images, supplementary files).
 * **`scripts/`**: Houses utility bash scripts.
 * **`exgra_med/`**: The main source code directory for the `exgra_med` package/application.
@@ -193,7 +193,7 @@ pip install pycocotools
 * **`README.md`**: This README file, providing an overview of the project.
 
 --------
-## 📄 Dataset Configuration Files
+## Dataset Configuration Files
 
  🔗 **Downstream Stage**:
 We provide pre-built `.json` configuration files for all datasets used in VQA training and evaluation in downstream tasks. These files specify paths, splits, and preprocessing parameters necessary for seamless execution. Firstly, create each dataset folder in folder `data/`, then put the corresponding dataset `.json` files into folders. Next, please see websites for datasets [VQA-RAD](https://www.kaggle.com/datasets/shashankshekhar1205/vqa-rad-visual-question-answering-radiology), [SLAKE 1.0](https://www.med-vqa.com/slake/), and [PATH-VQA](https://github.com/KaveeshaSilva/PathVQA) to download `images/` folders and upload them into corresponding dataset folders in `data/` folder.
@@ -209,7 +209,7 @@ To prepare dataset for pre-training stage using both **Exgra-Med** and original 
 
 
 -----
-## 🖇️ Extended Instructions Generation
+## Extended Instructions Generation
 The script [`extended_caption_generation.py`](exgra_med/data_preprocessing/extended_caption_generation.py) reads an input JSON of instructions/conversations, sends each question+answer pair to an LLM with a provided [system prompt](exgra_med/prompts/extend_caption.txt), and replaces the answer with the LLM-provided revision. It supports resuming from an existing extended output file.
 
 Input JSON should contain items with a `conversations` (or misspelled `conversatons`) key whose value is a list of role objects. The script pairs even-indexed entries (questions) with the following odd-indexed entries (answers) and updates the answer `value` with the LLM `revision`.
@@ -259,7 +259,7 @@ bash scripts/stage1.sh
 bash scripts/stage2.sh
 ```
 
-## 🔧 Fine-tuning on VQA Tasks
+## Fine-tuning on VQA Tasks
 We provide ready-to-use scripts to fine-tune **EXGRA-MED** and **EXGRA-MED + DCI** on three popular medical VQA benchmarks: **VQA-RAD**, **SLAKE**, and **PATH-VQA**.
 
 Each script uses one of our pretrained checkpoints as the starting point.  👉 **Before running**, make sure to update the `--model_name_or_path` in each `.sh` file to point to the correct location of the downloaded model.
@@ -279,7 +279,7 @@ bash scripts/llava1-5_stage2_pvqa_dci.sh        # with DCI
 ```
 
 -----
-## 📈 Evaluation
+## Evaluation
 
 You can run evaluation for each of the three key tasks:
 
@@ -325,7 +325,7 @@ bash scripts/zero_shot_classification.sh
 ```
 
 ------
-## 🔬 Data Efficiency Demonstration (10% vs 40%)
+## Data Efficiency Demonstration (10% vs 40%)
 To replicate our findings on LLAVA-MED’s data inefficiency and the strength of EXGRA-MED with 10% and 40% data (Tables 1 & 2 in the paper):
 
 
